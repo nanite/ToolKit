@@ -17,7 +17,7 @@ public class TKCommand {
                 .then(CommandInventory.register())
                 .then(CommandLookingAt.register())
                 .then(CommandOreDist.register())
-                .then(CommandRemoveNoneOres.register())
+                .then(CommandClear.register())
                 .then(CommandStructureClean.register())
         );
     }
