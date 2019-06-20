@@ -39,13 +39,14 @@ public class CommandDevEnv {
         source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
         source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
         source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
-        source.getWorld().setDayTime(time);
-        source.getWorld().getWorldInfo().setClearWeatherTime(6000);
-        source.getWorld().getWorldInfo().setRainTime(0);
-        source.getWorld().getWorldInfo().setThunderTime(0);
-        source.getWorld().getWorldInfo().setRaining(false);
-        source.getWorld().getWorldInfo().setThundering(false);
-
+        if(envValue == "true") {
+            source.getWorld().setDayTime(time);
+            source.getWorld().getWorldInfo().setClearWeatherTime(6000);
+            source.getWorld().getWorldInfo().setRainTime(0);
+            source.getWorld().getWorldInfo().setThunderTime(0);
+            source.getWorld().getWorldInfo().setRaining(false);
+            source.getWorld().getWorldInfo().setThundering(false);
+        }
         return 1;
     }
 }

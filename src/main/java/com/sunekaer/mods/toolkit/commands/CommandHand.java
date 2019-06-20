@@ -63,7 +63,9 @@ public class CommandHand {
         if (clip.contentEquals("nocopy")) {
             source.sendFeedback(new TranslationTextComponent(TextFormatting.YELLOW + combinedItemNBT), true);
             return 1;
+        }else{
+            source.sendErrorMessage(new TranslationTextComponent("commands.unknown.argument"));
+            return 0;
         }
-        return 0;
     }
 }

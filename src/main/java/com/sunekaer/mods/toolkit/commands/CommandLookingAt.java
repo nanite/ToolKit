@@ -20,11 +20,10 @@ public class CommandLookingAt {
     public static ArgumentBuilder<CommandSource, ?> register() {
         return literal("lookingat")
                 .requires(cs -> cs.hasPermissionLevel(0)) //permission
-                .executes(ctx -> getRay(
-                        ctx.getSource(),
-                        ctx.getSource().asPlayer(),
-                        0
-                ))
+                .executes(ctx -> {
+                    ctx.getSource().sendErrorMessage(new TranslationTextComponent("commands.toolkit.la.missing"));
+                    return 1;
+                })
                 .then(argument("0=block/1=fluid", IntegerArgumentType.integer())
                         .executes(ctx -> getRay(
                                 ctx.getSource(),
@@ -68,6 +67,9 @@ public class CommandLookingAt {
                     return 1;
                 }
             }
+        }else {
+            source.sendErrorMessage(new TranslationTextComponent("commands.unknown.argument"));
+            return 1;
         }
         return 0;
     }

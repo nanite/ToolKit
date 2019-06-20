@@ -5,5 +5,7 @@
   "commands.toolkit.oredist.missing": "Missing arguments §r[Dimension] §cand §r[AreaSize]",
   "commands.toolkit.oredist.missing1": "Missing arguments §r[AreaSize]",
   "commands.toolkit.remove.lagwarring": "§c--WARNING-- Lag incoming.. removing a lot of blocks",
-  "commands.toolkit.remove.done": "--Block removal done--"
+  "commands.toolkit.remove.done": "--Block removal done--",
+  "commands.toolkit.la.missing": "Missing argument 0=block/1=fluid",
+  "commands.unknown.argument": "--Unknown argument--"
 }
