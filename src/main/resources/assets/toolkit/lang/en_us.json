@@ -1,0 +1,9 @@
+{
+  "commands.toolkit.wip": "--This command doesn't function yet--",
+  "commands.toolkit.hand.handempty": "--HAND IS EMPTY--",
+  "commands.toolkit.clipboard.copied": "§e--Copied to Clipboard--",
+  "commands.toolkit.oredist.missing": "Missing arguments §r[Dimension] §cand §r[AreaSize]",
+  "commands.toolkit.oredist.missing1": "Missing arguments §r[AreaSize]",
+  "commands.toolkit.remove.lagwarring": "§c--WARNING-- Lag incoming.. removing a lot of blocks",
+  "commands.toolkit.remove.done": "--Block removal done--"
+}

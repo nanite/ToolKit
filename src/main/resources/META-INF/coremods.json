@@ -1,0 +1,4 @@
+{
+  "StructureBlockTileEntity Transformer": "structureblocktileentity-transformer.js",
+  "CUpdateStructureBlockPacket Transformer": "cupdatestructureblockpacket-transformer.js"
+}
