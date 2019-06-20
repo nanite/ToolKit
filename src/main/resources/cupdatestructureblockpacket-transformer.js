@@ -8,8 +8,9 @@ function initializeCoreMod() {
              },
              'transformer': function(classNode) {
                  var opcodes = Java.type('org.objectweb.asm.Opcodes')
+                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
                  var methods = classNode.methods;
-                 var targetMethodName = "readPacketData";
+                 var targetMethodName = ASMAPI.mapMethod("func_148837_a");
 
                  for (var j in methods) {
                  var method = methods[j];

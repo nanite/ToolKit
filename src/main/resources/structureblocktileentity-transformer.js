@@ -7,9 +7,11 @@ function initializeCoreMod() {
 
              },
              'transformer': function(classNode) {
-                 var opcodes = Java.type('org.objectweb.asm.Opcodes')
+                 var opcodes = Java.type('org.objectweb.asm.Opcodes');
+                 var MethodNode = Java.type('org.objectweb.asm.tree.MethodNode');
+                 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
                  var methods = classNode.methods;
-                 var targetMethodName = "read";
+                 var targetMethodName = ASMAPI.mapMethod("func_145839_a");
 
                  for (var j in methods) {
                  var method = methods[j];
@@ -33,6 +35,12 @@ function initializeCoreMod() {
                          }
                      }
                  }
+
+                 var newMethod = new MethodNode(opcodes.ACC_PUBLIC, ASMAPI.mapMethod("func_145833_n"), "()D", null, null);
+                 newMethod.visitLdcInsn(16384.0);
+                 newMethod.visitInsn(opcodes.DRETURN);
+                 methods.add(newMethod);
+
                  return classNode;
              }
          }
