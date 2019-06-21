@@ -39,7 +39,7 @@ public class CommandDevEnv {
         source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
         source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
         source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
-        if(envValue == "true") {
+        if(value) {
             source.getWorld().setDayTime(time);
             source.getWorld().getWorldInfo().setClearWeatherTime(6000);
             source.getWorld().getWorldInfo().setRainTime(0);
