@@ -36,9 +36,6 @@ public class CommandHand {
 
     private static int getHand(CommandSource source, PlayerEntity player, String clip) {
         ItemStack stack = player.getHeldItemMainhand();
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
 
         if (stack.isEmpty()) {
             source.sendErrorMessage(new TranslationTextComponent("commands.toolkit.hand.handempty"));

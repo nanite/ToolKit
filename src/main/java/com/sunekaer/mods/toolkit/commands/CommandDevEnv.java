@@ -3,7 +3,6 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.PlayerEntity;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -16,19 +15,15 @@ public class CommandDevEnv {
                 .then(argument("True/False", BoolArgumentType.bool())
                         .executes(ctx -> setDevEnv(
                                 ctx.getSource(),
-                                ctx.getSource().asPlayer(),
                                 BoolArgumentType.getBool(ctx, "True/False")
                                 )
                         )
                 );
     }
 
-    private static int setDevEnv(CommandSource source, PlayerEntity player, Boolean value) {
+    private static int setDevEnv(CommandSource source, Boolean value) {
         String envValue = "";
         long time = 6000;
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
 
         if (value) {
             envValue = "false";

@@ -32,10 +32,6 @@ public class CommandClear {
     }
 
     private static int remove(CommandSource source, PlayerEntity player, int size) {
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
-
         List<Block> list = new ArrayList<>();
             list.add(Blocks.ACACIA_FENCE);
             list.add(Blocks.ACACIA_LOG);

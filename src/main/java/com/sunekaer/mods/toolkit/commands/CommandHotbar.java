@@ -24,10 +24,6 @@ public class CommandHotbar {
     }
 
     private static int getHotbar(CommandSource source, PlayerEntity player) {
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
-
         String clipboard = "";
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.inventory.mainInventory.get(slot);
