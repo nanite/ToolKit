@@ -42,12 +42,12 @@ public class CommandHand {
             return 0;
         }
 
-        String itemName = "<" + stack.getItem().getRegistryName() + ">";
+        String itemName = stack.getItem().getRegistryName().toString();
 
         String withNBT = "";
         CompoundNBT nbt = stack.serializeNBT();
         if (nbt.contains("tag")) {
-            withNBT += ".withTag(" + nbt.get("tag") + ")";
+            withNBT += nbt.get("tag");
         }
 
         String combinedItemNBT = itemName + withNBT;

@@ -32,12 +32,12 @@ public class CommandHotbar {
                 continue;
             }
 
-            String itemName = "<" + stack.getItem().getRegistryName() + ">";
+            String itemName = stack.getItem().getRegistryName().toString();
 
             String withNBT = "";
             CompoundNBT nbt = stack.serializeNBT();
             if (nbt.contains("tag")) {
-                withNBT += ".withTag(" + nbt.get("tag") + ")";
+                withNBT += nbt.get("tag");
             }
 
             clipboard += itemName + withNBT + CommandUtils.NEW_LINE;
