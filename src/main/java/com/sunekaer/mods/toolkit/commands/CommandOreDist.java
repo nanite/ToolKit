@@ -49,9 +49,6 @@ public class CommandOreDist {
     }
 
     private static int getOreDist(CommandSource source, PlayerEntity player, DimensionType dim, int size) {
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
         Map<String, Integer> map = new HashMap<String, Integer>();
 
         double searchSize = ((16 * size) / 2);
@@ -68,7 +65,7 @@ public class CommandOreDist {
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
                     if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !tBlock.equals(Blocks.STONE) && !tBlock.equals(Blocks.DIRT) && !tBlock.equals(Blocks.WATER)) {
-                        if (tBlock.getTags().contains(Tags.Blocks.ORES.getId())) {
+                        if (Tags.Blocks.ORES.contains(tBlock.getBlock())) {
                             String key = tBlock.getBlock().getRegistryName().toString();
                             Object value = map.get(tBlock.getBlock().getRegistryName().toString());
                             if (value != null) {
