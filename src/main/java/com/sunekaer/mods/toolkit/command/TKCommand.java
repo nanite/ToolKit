@@ -15,7 +15,7 @@ public class TKCommand {
                 .then(CommandHand.register())
                 .then(CommandHotbar.register())
                 .then(CommandInventory.register())
-                .then(CommandLookingAt.register())
+                //.then(CommandLookingAt.register())
                 .then(CommandOreDist.register())
                 .then(CommandClear.register())
                 .then(CommandStructureClean.register())

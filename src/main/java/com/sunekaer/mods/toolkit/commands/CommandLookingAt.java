@@ -3,6 +3,7 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.gui.overlay.DebugOverlayGui;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;
@@ -37,10 +38,6 @@ public class CommandLookingAt {
     private static int getRay(CommandSource source, PlayerEntity player, int boolenstate) {
         RayTraceResult rayTrace;
         BlockState blockstate;
-
-        if (!(player instanceof PlayerEntity)) {
-            return 0;
-        }
 
         if (boolenstate == 0) {
             rayTrace = player.func_213324_a(20.0D, 0.0F, false);
