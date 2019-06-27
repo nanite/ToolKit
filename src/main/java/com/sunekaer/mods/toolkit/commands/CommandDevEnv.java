@@ -2,7 +2,11 @@ package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.sun.org.apache.xpath.internal.functions.FuncFalse;
 import net.minecraft.command.CommandSource;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.GameRules;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -31,9 +35,10 @@ public class CommandDevEnv {
             envValue = "true";
         }
 
-        source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
-        source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
-        source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
+//        source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
+//        source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
+//        source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
+
         if(value) {
             source.getWorld().setDayTime(time);
             source.getWorld().getWorldInfo().setClearWeatherTime(6000);

@@ -19,7 +19,7 @@ archivesBaseName = 'TOOLKIT'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    mappings channel: 'snapshot', version: '20190620-1.14.2'
+    mappings channel: 'snapshot', version: '20190627-1.14.3'
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
@@ -47,7 +47,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.14.2-26.0.35'
+    minecraft 'net.minecraftforge:forge:1.14.3-27.0.13'
 }
 
 jar {
