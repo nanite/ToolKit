@@ -2,11 +2,9 @@ package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.sun.org.apache.xpath.internal.functions.FuncFalse;
 import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.GameRules;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -26,18 +24,29 @@ public class CommandDevEnv {
     }
 
     private static int setDevEnv(CommandSource source, Boolean value) {
-        String envValue = "";
+        boolean envValue = false;
         long time = 6000;
 
         if (value) {
-            envValue = "false";
+            envValue = false;
         } else if (!value) {
-            envValue = "true";
+            envValue = true;
         }
 
-//        source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
-//        source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
-//        source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
+        GameRules.BooleanValue d = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_DAYLIGHT_CYCLE);
+        d.set(envValue, ServerLifecycleHooks.getCurrentServer());
+
+        GameRules.BooleanValue m = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_MOB_SPAWNING);
+        m.set(envValue, ServerLifecycleHooks.getCurrentServer());
+
+        GameRules.BooleanValue w = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_WEATHER_CYCLE);
+        w.set(envValue, ServerLifecycleHooks.getCurrentServer());
 
         if(value) {
             source.getWorld().setDayTime(time);
