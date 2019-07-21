@@ -6,9 +6,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.ServerWorld;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.server.ServerWorld;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
