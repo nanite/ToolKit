@@ -3,7 +3,6 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.overlay.DebugOverlayGui;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.IFluidState;

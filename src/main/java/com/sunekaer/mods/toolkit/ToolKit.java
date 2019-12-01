@@ -1,6 +1,7 @@
 package com.sunekaer.mods.toolkit;
 
-import com.sunekaer.mods.toolkit.command.TKCommand;
+import com.sunekaer.mods.toolkit.commands.TKCommand;
+import com.sunekaer.mods.toolkit.network.Handler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -8,17 +9,18 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod("toolkit")
-public class ToolKit {
-    public static final Logger LOGGER = LogManager.getLogger();
+@Mod(ToolKit.MODID)
+public class ToolKit{
+    public static final String MODID = "toolkit";
+    public static final Logger LOGGER = LogManager.getLogger("ToolKit");
 
     public ToolKit() {
         MinecraftForge.EVENT_BUS.register(this);
+        Handler.init();
     }
 
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
-        LOGGER.info("Hello Minecraft");
         new TKCommand(event.getCommandDispatcher());
     }
 }

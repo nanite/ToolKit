@@ -1,12 +1,16 @@
 package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.sunekaer.mods.toolkit.network.Copy;
+import com.sunekaer.mods.toolkit.network.Handler;
 import com.sunekaer.mods.toolkit.utils.CommandUtils;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import static net.minecraft.command.Commands.literal;
 import static net.minecraft.realms.Realms.setClipboard;
@@ -44,7 +48,7 @@ public class CommandInventory {
         }
 
         source.sendFeedback(new TranslationTextComponent("commands.toolkit.clipboard.copied"), true);
-        setClipboard(clipboard);
+        Handler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player.getEntity()), new Copy(clipboard));
         return 1;
     }
 }

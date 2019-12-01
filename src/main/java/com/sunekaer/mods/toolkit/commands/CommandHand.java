@@ -2,12 +2,16 @@ package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.sunekaer.mods.toolkit.network.Copy;
+import com.sunekaer.mods.toolkit.network.Handler;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fml.network.PacketDistributor;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -36,8 +40,7 @@ public class CommandHand {
 
     private static int getHand(CommandSource source, PlayerEntity player, String clip) {
         ItemStack stack = player.getHeldItemMainhand();
-
-        if (stack.isEmpty()) {
+                if (stack.isEmpty()) {
             source.sendErrorMessage(new TranslationTextComponent("commands.toolkit.hand.handempty"));
             return 0;
         }
@@ -54,7 +57,7 @@ public class CommandHand {
 
         if (clip.isEmpty()) {
             source.sendFeedback(new TranslationTextComponent(TextFormatting.YELLOW + combinedItemNBT), true);
-            setClipboard(combinedItemNBT);
+            Handler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player.getEntity()), new Copy(combinedItemNBT));
             return 1;
         }
         if (clip.contentEquals("nocopy")) {

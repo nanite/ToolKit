@@ -1,7 +1,6 @@
-package com.sunekaer.mods.toolkit.command;
+package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.sunekaer.mods.toolkit.commands.*;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 
