@@ -1,6 +1,5 @@
 package com.sunekaer.mods.toolkit.commands;
 
-
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
@@ -33,9 +32,7 @@ public class CommandKillAllExpOrbs {
         Stream<Entity> stream = ((ServerWorld) world).getEntities();
 
         stream.collect(Collectors.toList()).forEach(entity -> {
-            System.out.println(entity);
             if ((entity instanceof ExperienceOrbEntity)){
-                System.out.println(entity);
                 i.addAndGet(1);
                 entity.onKillCommand();
             }

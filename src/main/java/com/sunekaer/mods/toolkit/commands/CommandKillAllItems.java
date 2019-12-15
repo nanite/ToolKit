@@ -1,6 +1,5 @@
 package com.sunekaer.mods.toolkit.commands;
 
-
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
@@ -33,13 +32,12 @@ public class CommandKillAllItems {
         Stream<Entity> stream = ((ServerWorld) world).getEntities();
 
         stream.collect(Collectors.toList()).forEach(entity -> {
-            System.out.println(entity);
             if ((entity instanceof ItemEntity)){
-                System.out.println(entity);
                 i.addAndGet(1);
                 entity.onKillCommand();
             }
         });
+
         if (i.get() > 0) {
             source.sendFeedback(new TranslationTextComponent("commands.toolkit.killall.items.done", i.get()), true);
         } else {

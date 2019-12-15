@@ -1,11 +1,9 @@
 package com.sunekaer.mods.toolkit.commands;
 
-
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -45,9 +43,7 @@ public class CommandKillAll {
 
         Stream<Entity> stream2 = ((ServerWorld) world).getEntities();
         stream2.collect(Collectors.toList()).forEach(entity -> {
-            System.out.println(entity);
             if ((entity instanceof ItemEntity)){
-                System.out.println(entity);
                 i.addAndGet(1);
                 entity.onKillCommand();
             }
