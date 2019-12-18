@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[29,)" #mandatory (26 is current forge version)
+loaderVersion="[30,)" #mandatory (26 is current forge version)
 issueTrackerURL="http://my.issue.tracker/" #optional
 [[mods]] #mandatory
 modId="toolkit" #mandatory
@@ -15,13 +15,13 @@ This mod adds bunch of useful commands
 [[dependencies.toolkit]]
 modId="forge"
 mandatory=true
-versionRange="[29.0.3,)"
+versionRange="[30.0.7,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.toolkit]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.15]"
+versionRange="[1.15.1]"
 ordering="NONE"
 side="BOTH"
