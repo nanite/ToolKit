@@ -31,7 +31,6 @@ public class CommandSlayer {
     }
 
     private static int giveItem(CommandSource source, ServerPlayerEntity player) {
-        System.out.println(source.toString());
         ItemStack itemstack = new ItemStack(Items.DIAMOND_SWORD);
         itemstack.setDisplayName(new TranslationTextComponent("commands.dragonslayer.name"));
         Map<Enchantment, Integer> map = new HashMap<>();

@@ -1,5 +1,6 @@
 package com.sunekaer.mods.toolkit.commands;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.block.Block;
@@ -10,9 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.structure.Structure;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -25,60 +25,24 @@ public class CommandClear {
                         .executes(ctx -> remove(
                                 ctx.getSource(),
                                 ctx.getSource().asPlayer(),
-                                IntegerArgumentType.getInteger(ctx, "ClearSize")
+                                IntegerArgumentType.getInteger(ctx, "ClearSize"),
+                                false
                                 )
                         )
-                );
+                )
+                .then(argument("ClearSize", IntegerArgumentType.integer())
+                        .then(argument("keepStructure", BoolArgumentType.bool())
+                        .executes(ctx -> remove(
+                                ctx.getSource(),
+                                ctx.getSource().asPlayer(),
+                                IntegerArgumentType.getInteger(ctx, "ClearSize"),
+                                BoolArgumentType.getBool(ctx, "keepStructure")
+                                )
+                        )
+                ));
     }
 
-    private static int remove(CommandSource source, PlayerEntity player, int size) {
-        List<Block> list = new ArrayList<>();
-            list.add(Blocks.ACACIA_FENCE);
-            list.add(Blocks.ACACIA_LOG);
-            list.add(Blocks.ANDESITE);
-            list.add(Blocks.BIRCH_LEAVES);
-            list.add(Blocks.BIRCH_LOG);
-            list.add(Blocks.CHEST);
-            list.add(Blocks.CLAY);
-            list.add(Blocks.COBBLESTONE);
-            list.add(Blocks.COBWEB);
-            list.add(Blocks.DARK_OAK_LEAVES);
-            list.add(Blocks.DARK_OAK_LOG);
-            list.add(Blocks.DIORITE);
-            list.add(Blocks.DIRT);
-            list.add(Blocks.END_STONE);
-            list.add(Blocks.GRANITE);
-            list.add(Blocks.GRASS);
-            list.add(Blocks.GRASS_BLOCK);
-            list.add(Blocks.GRASS_PATH);
-            list.add(Blocks.GRAVEL);
-            list.add(Blocks.JUNGLE_LEAVES);
-            list.add(Blocks.JUNGLE_LOG);
-            list.add(Blocks.MOSSY_COBBLESTONE);
-            list.add(Blocks.NETHERRACK);
-            list.add(Blocks.NETHER_BRICKS);
-            list.add(Blocks.NETHER_WART);
-            list.add(Blocks.NETHER_WART_BLOCK);
-            list.add(Blocks.OAK_FENCE);
-            list.add(Blocks.OAK_LEAVES);
-            list.add(Blocks.OAK_LOG);
-            list.add(Blocks.OAK_PLANKS);
-            list.add(Blocks.OBSIDIAN);
-            list.add(Blocks.RAIL);
-            list.add(Blocks.SAND);
-            list.add(Blocks.SANDSTONE);
-            list.add(Blocks.SPRUCE_LEAVES);
-            list.add(Blocks.SPRUCE_LOG);
-            list.add(Blocks.STONE);
-            list.add(Blocks.TALL_GRASS);
-
-        List<String> list2 = new ArrayList<>();
-            list2.add("minecraft:water");
-            list2.add("minecraft:lava");
-            list2.add("minecraft:flowing_water");
-            list2.add("minecraft:flowing_lava");
-
-
+    private static int remove(CommandSource source, PlayerEntity player, int size, Boolean keep) {
         World world = source.getWorld();
         double removeSize = ((16 * size) / 2);
         double startX = player.getPosition().getX() - removeSize;
@@ -93,9 +57,18 @@ public class CommandClear {
                     BlockPos tBlockPos = new BlockPos(x, y, z);
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
-                    if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK)) {
-                        if(list.contains(tBlock) || list2.contains(tBlock.getRegistryName().toString())){
-                            world.setBlockState(tBlockPos, Blocks.AIR.getDefaultState(), 2);
+                    if (!keep){
+                        if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK)) {
+                            if(tBlock.getRegistryName().getNamespace().equals("minecraft")){
+                                world.setBlockState(tBlockPos, Blocks.AIR.getDefaultState(), 2);
+                            }
+                        }
+                    }
+                    if (keep) {
+                        if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !partOfStucture(world, tBlockPos)) {
+                            if (tBlock.getRegistryName().getNamespace().equals("minecraft")) {
+                                world.setBlockState(tBlockPos, Blocks.AIR.getDefaultState(), 2);
+                            }
                         }
                     }
                 }
@@ -103,6 +76,17 @@ public class CommandClear {
         }
         source.sendFeedback(new TranslationTextComponent("commands.toolkit.remove.done"), true);
         return 1;
+    }
+
+    private static boolean partOfStucture(World world, BlockPos pos){
+        for (Structure<?> structure : Feature.STRUCTURES.values())
+        {
+            if (structure.isPositionInsideStructure(world, pos))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
