@@ -24,14 +24,12 @@ public class CommandSlayer {
         return literal("slayer")
                 .requires(cs -> cs.hasPermissionLevel(2)) //permission
                 .executes(ctx -> giveItem(
-                        ctx.getSource(),
                         ctx.getSource().asPlayer()
                         )
                 );
     }
 
-    private static int giveItem(CommandSource source, ServerPlayerEntity player) {
-        System.out.println(source.toString());
+    private static int giveItem(ServerPlayerEntity player) {
         ItemStack itemstack = new ItemStack(Items.DIAMOND_SWORD);
         itemstack.setDisplayName(new TranslationTextComponent("commands.dragonslayer.name"));
         Map<Enchantment, Integer> map = new HashMap<>();

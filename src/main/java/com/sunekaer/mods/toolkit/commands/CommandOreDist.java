@@ -80,7 +80,6 @@ public class CommandOreDist {
         }
 
         double sum = map.values().stream().reduce(0, Integer::sum);
-        System.out.println(sum);
         map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x ->
                 source.sendFeedback(new TranslationTextComponent("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
         );
