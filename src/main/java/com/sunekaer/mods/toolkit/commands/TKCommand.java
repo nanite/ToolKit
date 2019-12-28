@@ -21,6 +21,8 @@ public class TKCommand {
                 .then(CommandKillAllAnimals.register())
                 .then(CommandKillAllItems.register())
                 .then(CommandKillAllExpOrbs.register())
+                .then(CommandHeal.register())
+                .then(CommandNightVision.register())
         );
     }
 }
