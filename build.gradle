@@ -23,7 +23,7 @@ apply from: 'https://raw.githubusercontent.com/MinecraftModDevelopment/Gradle-Co
 def ENV = System.getenv()
 version = ENV.BUILD_NUMBER ? "${project_version}.${ENV.BUILD_NUMBER}" : "${project_version}.custom"
 group = 'com.sunekaer.mods'
-archivesBaseName = 'TOOLKIT-${minecraft_version}'
+archivesBaseName = 'TOOLKIT'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
