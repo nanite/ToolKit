@@ -41,7 +41,7 @@ public class CommandOreDist {
                                 .executes(ctx -> getOreDist(
                                         ctx.getSource(),
                                         ctx.getSource().asPlayer(),
-                                        DimensionArgument.func_212592_a(ctx, "Dimension"),
+                                        DimensionArgument.getDimensionArgument(ctx, "Dimension"),
                                         IntegerArgumentType.getInteger(ctx, "AreaSize")
                                 ))
                         )
