@@ -39,7 +39,6 @@ public class CommandSlayer {
 
         int count = 1;
         int i = count;
-
             while(i > 0) {
                 int j = Math.min(Items.CLAY.getItem().getMaxStackSize(), i);
                 i -= j;
@@ -50,7 +49,6 @@ public class CommandSlayer {
                     if (itementity1 != null) {
                         itementity1.makeFakeItem();
                     }
-
                     player.world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
                     player.container.detectAndSendChanges();
                 } else {
