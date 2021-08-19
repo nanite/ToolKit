@@ -3,6 +3,10 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.impl.WeatherCommand;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.storage.IServerWorldInfo;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
@@ -22,25 +26,32 @@ public class CommandDevEnv {
     }
 
     private static int setDevEnv(CommandSource source, Boolean value) {
-        String envValue = "";
+        boolean envValue = false;
         long time = 6000;
 
         if (value) {
-            envValue = "false";
+            envValue = false;
         } else if (!value) {
-            envValue = "true";
+            envValue = true;
         }
 
-        source.getServer().getGameRules().setOrCreateGameRule("doDaylightCycle", envValue, source.getServer());
-        source.getServer().getGameRules().setOrCreateGameRule("doMobSpawning", envValue, source.getServer());
-        source.getServer().getGameRules().setOrCreateGameRule("doWeatherCycle", envValue, source.getServer());
-        if(value) {
-            source.getWorld().setDayTime(time);
-            source.getWorld().getWorldInfo().setClearWeatherTime(6000);
-            source.getWorld().getWorldInfo().setRainTime(0);
-            source.getWorld().getWorldInfo().setThunderTime(0);
-            source.getWorld().getWorldInfo().setRaining(false);
-            source.getWorld().getWorldInfo().setThundering(false);
+        GameRules.BooleanValue d = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_DAYLIGHT_CYCLE);
+        d.set(envValue, ServerLifecycleHooks.getCurrentServer());
+
+        GameRules.BooleanValue m = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_MOB_SPAWNING);
+        m.set(envValue, ServerLifecycleHooks.getCurrentServer());
+
+        GameRules.BooleanValue w = ServerLifecycleHooks.getCurrentServer()
+                .getGameRules()
+                .get(GameRules.DO_WEATHER_CYCLE);
+        w.set(envValue, ServerLifecycleHooks.getCurrentServer());
+
+        if(value){
+            //TODO
         }
         return 1;
     }
