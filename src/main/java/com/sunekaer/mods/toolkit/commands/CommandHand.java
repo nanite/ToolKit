@@ -1,6 +1,5 @@
 package com.sunekaer.mods.toolkit.commands;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.sunekaer.mods.toolkit.network.Handler;
 import com.sunekaer.mods.toolkit.network.SetCopy;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static net.minecraft.command.Commands.argument;
 import static net.minecraft.command.Commands.literal;
 
 public class CommandHand {
@@ -27,24 +25,15 @@ public class CommandHand {
         return literal("hand")
                 .requires(cs -> cs.hasPermissionLevel(0)) //permission
                 .executes(ctx -> getHand(
-                        ctx.getSource(),
-                        ctx.getSource().asPlayer(),
-                        ""
-                        )
-                )
-                .then(argument("nocopy", StringArgumentType.string())
-                        .executes(ctx -> getHand(
                                 ctx.getSource(),
-                                ctx.getSource().asPlayer(),
-                                StringArgumentType.getString(ctx, "nocopy")
-                                )
+                                ctx.getSource().asPlayer()
                         )
                 );
     }
 
-    private static int getHand(CommandSource source, PlayerEntity player, String clip) {
+    private static int getHand(CommandSource source, PlayerEntity player) {
         ItemStack stack = player.getHeldItemMainhand();
-                if (stack.isEmpty()) {
+        if (stack.isEmpty()) {
             source.sendErrorMessage(new TranslationTextComponent("commands.toolkit.hand.handempty"));
             return 0;
         }
@@ -60,23 +49,13 @@ public class CommandHand {
 
         String combinedItemNBT = itemName + withNBT;
 
-        if (clip.isEmpty()) {
-            source.sendFeedback(new TranslationTextComponent(TextFormatting.YELLOW + combinedItemNBT), true);
-            Handler.MAIN.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player.getEntity()), new SetCopy(combinedItemNBT));
-            if(!tags.isEmpty()) {
-                source.sendFeedback(new TranslationTextComponent("Tags: " + TextFormatting.RED + tags.stream().map(ResourceLocation::toString).collect(Collectors.joining(", "))), true);
-            }
-            return 1;
+
+        source.sendFeedback(new TranslationTextComponent(TextFormatting.YELLOW + combinedItemNBT), true);
+        Handler.MAIN.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player.getEntity()), new SetCopy(combinedItemNBT));
+        if (!tags.isEmpty()) {
+            source.sendFeedback(new TranslationTextComponent("Tags: " + TextFormatting.RED + tags.stream().map(ResourceLocation::toString).collect(Collectors.joining(", "))), true);
         }
-        if (clip.contentEquals("nocopy")) {
-            source.sendFeedback(new TranslationTextComponent(TextFormatting.YELLOW + combinedItemNBT), true);
-            if(!tags.isEmpty()) {
-                source.sendFeedback(new TranslationTextComponent("Tags: " + TextFormatting.RED + tags.stream().map(ResourceLocation::toString).collect(Collectors.joining(", "))), true);
-            }
-            return 1;
-        }else{
-            source.sendErrorMessage(new TranslationTextComponent("commands.unknown.argument"));
-            return 0;
-        }
+        return 1;
+
     }
 }

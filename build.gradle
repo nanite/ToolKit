@@ -1,26 +1,27 @@
 buildscript {
     repositories {
-        jcenter()
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.1.0'
-        classpath 'com.wynprice.cursemaven:CurseMaven:1.2.+'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
+
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
-apply plugin: 'com.matthewprenger.cursegradle'
-apply plugin: 'maven'
-apply plugin: 'com.wynprice.cursemaven'
+apply plugin: 'maven-publish'
+apply from: 'https://files.saps.dev/ci/git-md-changelog.gradle'
 
 def ENV = System.getenv()
-version = '2.0.0'
+
+version = "${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 9999}+mc${minecraft_version}"
 group = 'com.sunekaer.mods'
-archivesBaseName = 'TOOLKIT'
+archivesBaseName = 'ToolKit'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
@@ -30,7 +31,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             mods {
                 toolkit {
@@ -41,7 +42,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             mods {
                 toolkit {
@@ -51,9 +52,11 @@ minecraft {
         }
         data {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'toolkit', '--all', '--output', file('src/generated/resources/')
+
+            args '--mod', 'toolkit', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
             mods {
                 toolkit {
                     source sourceSets.main
@@ -63,11 +66,7 @@ minecraft {
     }
 }
 
-repositories {
-    mavenLocal()
-    maven { url "https://maven.latmod.com/" }
-    maven { url "https://dvs1.progwml6.com/files/maven/" }
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
@@ -87,43 +86,55 @@ jar {
     }
 }
 
-def reobfFile = file("$buildDir/reobfJar/output.jar")
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'reobfJar'
-}
+jar.finalizedBy('reobfJar')
 
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier 'deobf'
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from sourceSets.main.allJava
 }
-
-build.dependsOn deobfJar
 
 artifacts {
-    archives deobfJar
+    archives sourcesJar
 }
 
-if (ENV.LOCAL_MAVEN) {
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(url: "file://${ENV.LOCAL_MAVEN}")
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = archivesBaseName
+            artifact(jar) {
+                classifier null
+            }
+            artifact(sourcesJar) {
+                builtBy sourcesJar
+            }
+        }
+    }
+
+
+    repositories {
+        if (ENV.NANITE_DEPLOY) {
+            maven {
+                url "https://maven.nanite.dev/"
+                credentials {
+                    username = "nanite"
+                    password = "${ENV.NANITE_DEPLOY}"
+                }
             }
         }
     }
 }
 
-if (ENV.WTBW_CF_KEY) {
+if (ENV.CURSE_DEPLOY) {
     curseforge {
-        apiKey = ENV.WTBW_CF_KEY
+        apiKey = ENV.CURSE_DEPLOY
         project {
-            id = "324888"
+            id = project.curseforge_id
             releaseType = "release"
-            addGameVersion "1.15.2"
+            addGameVersion "Forge"
+            addGameVersion "${minecraft_version}"
+            mainArtifact(jar)
             changelog = getGitChangelog
             changelogType = 'markdown'
-            addArtifact(deobfJar)
         }
     }
 }
