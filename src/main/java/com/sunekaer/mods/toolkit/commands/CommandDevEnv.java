@@ -3,7 +3,9 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.command.CommandSource;
+import net.minecraft.command.impl.WeatherCommand;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.storage.IServerWorldInfo;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import static net.minecraft.command.Commands.argument;
@@ -48,13 +50,8 @@ public class CommandDevEnv {
                 .get(GameRules.DO_WEATHER_CYCLE);
         w.set(envValue, ServerLifecycleHooks.getCurrentServer());
 
-        if(value) {
-            source.getWorld().setDayTime(time);
-            source.getWorld().getWorldInfo().setClearWeatherTime(6000);
-            source.getWorld().getWorldInfo().setRainTime(0);
-            source.getWorld().getWorldInfo().setThunderTime(0);
-            source.getWorld().getWorldInfo().setRaining(false);
-            source.getWorld().getWorldInfo().setThundering(false);
+        if(value){
+            //TODO
         }
         return 1;
     }

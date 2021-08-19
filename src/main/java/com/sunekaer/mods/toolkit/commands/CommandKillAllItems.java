@@ -18,7 +18,7 @@ public class CommandKillAllItems {
     public static ArgumentBuilder<CommandSource, ?> register() {
         return literal("killAllItems")
                 .requires(cs -> cs.hasPermissionLevel(2))
-                        .executes(ctx -> remove(
+                .executes(ctx -> remove(
                                 ctx.getSource()
                         )
                 );
@@ -32,7 +32,7 @@ public class CommandKillAllItems {
         Stream<Entity> stream = ((ServerWorld) world).getEntities();
 
         stream.collect(Collectors.toList()).forEach(entity -> {
-            if ((entity instanceof ItemEntity)){
+            if ((entity instanceof ItemEntity)) {
                 i.addAndGet(1);
                 entity.onKillCommand();
             }
@@ -46,4 +46,3 @@ public class CommandKillAllItems {
         return 1;
     }
 }
-

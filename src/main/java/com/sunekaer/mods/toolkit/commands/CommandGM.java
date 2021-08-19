@@ -7,6 +7,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.GameRules;
@@ -40,7 +41,7 @@ public class CommandGM {
             source.sendFeedback(new TranslationTextComponent("commands.gamemode.success.self", itextcomponent), true);
         } else {
             if (source.getWorld().getGameRules().getBoolean(GameRules.SEND_COMMAND_FEEDBACK)) {
-                player.sendMessage(new TranslationTextComponent("gameMode.changed", itextcomponent));
+                player.sendMessage(new TranslationTextComponent("gameMode.changed", itextcomponent), Util.field_240973_b_);
             }
 
             source.sendFeedback(new TranslationTextComponent("commands.gamemode.success.other", player.getDisplayName(), itextcomponent), true);

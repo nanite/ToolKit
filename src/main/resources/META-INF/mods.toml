@@ -1,27 +1,27 @@
 modLoader="javafml" #mandatory
-loaderVersion="[30,)" #mandatory (26 is current forge version)
-issueTrackerURL="http://my.issue.tracker/" #optional
+loaderVersion="[34,)" #mandatory
+license = "All Rights Reserved"
+#issueTrackerURL="http://my.issue.tracker/" #optional
 [[mods]] #mandatory
 modId="toolkit" #mandatory
 version="${file.jarVersion}" #mandatory
 displayName="Tool Kit" #mandatory
-displayURL="http://example.com/" #optional
-logoFile="logo.png" #optional
-credits="Thanks for this example mod goes to Java" #optional
+#displayURL="http://example.com/" #optional
+#logoFile="logo.png" #optional
 authors="Sunekaer" #optional
 description='''
 This mod adds bunch of useful commands
 '''
 [[dependencies.toolkit]]
-    modId="forge"
-    mandatory=true
-    versionRange="[31.0.0,)"
-    ordering="NONE"
-    side="BOTH"
+modId="forge"
+mandatory=true
+versionRange="[34,)"
+ordering="NONE"
+side="BOTH"
 
 [[dependencies.toolkit]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.15.2]"
-    ordering="NONE"
-    side="BOTH"
+modId="minecraft"
+mandatory=true
+versionRange="[1.16.3,1.17)"
+ordering="NONE"
+side="BOTH"

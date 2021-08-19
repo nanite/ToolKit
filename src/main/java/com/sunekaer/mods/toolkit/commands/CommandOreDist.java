@@ -10,8 +10,8 @@ import net.minecraft.command.arguments.DimensionArgument;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.Tags;
 
 import java.text.DecimalFormat;
@@ -32,40 +32,33 @@ public class CommandOreDist {
                     ctx.getSource().sendErrorMessage(new TranslationTextComponent("commands.toolkit.oredist.missing"));
                     return 1;
                 })
-                .then(argument("Dimension", DimensionArgument.getDimension())
-                        .executes(ctx -> {
-                            ctx.getSource().sendErrorMessage(new TranslationTextComponent("commands.toolkit.oredist.missing1"));
-                            return 1;
-                        })
-                        .then(argument("AreaSize", IntegerArgumentType.integer())
-                                .executes(ctx -> getOreDist(
-                                        ctx.getSource(),
-                                        ctx.getSource().asPlayer(),
-                                        DimensionArgument.getDimensionArgument(ctx, "Dimension"),
-                                        IntegerArgumentType.getInteger(ctx, "AreaSize")
-                                ))
-                        )
+                .then(argument("AreaSize", IntegerArgumentType.integer())
+                        .executes(ctx -> getOreDist(
+                                ctx.getSource(),
+                                ctx.getSource().asPlayer(),
+                                IntegerArgumentType.getInteger(ctx, "AreaSize")
+                        ))
                 );
     }
 
-    private static int getOreDist(CommandSource source, PlayerEntity player, DimensionType dim, int size) {
+    private static int getOreDist(CommandSource source, PlayerEntity player, int size) {
         Map<String, Integer> map = new HashMap<String, Integer>();
 
         double searchSize = ((16 * size) / 2);
-        double startX = player.getPosition().getX() - searchSize;
-        double startZ = player.getPosition().getZ() - searchSize;
-        double endX = player.getPosition().getX() + searchSize;
-        double endZ = player.getPosition().getZ() + searchSize;
-        World world = source.getServer().getWorld(dim);
+        double startX = player.getPositionVec().getX() - searchSize;
+        double startZ = player.getPositionVec().getZ() - searchSize;
+        double endX = player.getPositionVec().getX() + searchSize;
+        double endZ = player.getPositionVec().getZ() + searchSize;
+        World world = player.getEntityWorld();
 
-        for (int y = 0; y < world.getActualHeight(); ++y) {
+        for (int y = 0; y < 255 ; ++y) {
             for (double x = startX; x < endX; x++) {
                 for (double z = startZ; z < endZ; z++) {
                     BlockPos tBlockPos = new BlockPos(x, y, z);
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
                     if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !tBlock.equals(Blocks.STONE) && !tBlock.equals(Blocks.DIRT) && !tBlock.equals(Blocks.WATER)) {
-                        if (Tags.Blocks.ORES.contains(tBlock.getBlock())) {
+                        if (Tags.Blocks.ORES.func_230236_b_().contains(tBlock.getBlock())) {
                             String key = tBlock.getBlock().getRegistryName().toString();
                             Object value = map.get(tBlock.getBlock().getRegistryName().toString());
                             if (value != null) {
