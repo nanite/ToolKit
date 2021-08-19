@@ -6,11 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.DimensionArgument;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Tags;
 
@@ -51,7 +49,7 @@ public class CommandOreDist {
         double endZ = player.getPositionVec().getZ() + searchSize;
         World world = player.getEntityWorld();
 
-        for (int y = 0; y < 255 ; ++y) {
+        for (int y = 0; y < 255; ++y) {
             for (double x = startX; x < endX; x++) {
                 for (double z = startZ; z < endZ; z++) {
                     BlockPos tBlockPos = new BlockPos(x, y, z);
@@ -73,10 +71,13 @@ public class CommandOreDist {
         }
 
         double sum = map.values().stream().reduce(0, Integer::sum);
+        if (sum == 0) {
+            source.sendFeedback(new TranslationTextComponent("\u00A7c No ores found"), true);
+            return 1;
+        }
         map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x ->
                 source.sendFeedback(new TranslationTextComponent("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
         );
-
         return 1;
     }
 }

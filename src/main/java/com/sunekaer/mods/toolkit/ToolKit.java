@@ -1,16 +1,12 @@
 package com.sunekaer.mods.toolkit;
 
-import com.sunekaer.mods.toolkit.commands.CommandGM;
-import com.sunekaer.mods.toolkit.commands.TKCommand;
 import com.sunekaer.mods.toolkit.config.TKConfig;
 import com.sunekaer.mods.toolkit.event.PlayerEvents;
 import com.sunekaer.mods.toolkit.network.Handler;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -21,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import static org.apache.logging.log4j.Level.INFO;
 
 @Mod(ToolKit.MODID)
-public class ToolKit{
+public class ToolKit {
     public static final String MODID = "toolkit";
     public static final Logger LOGGER = LogManager.getLogger("ToolKit");
 
@@ -33,17 +29,17 @@ public class ToolKit{
         TKConfig.register(ModLoadingContext.get());
     }
 
+    public static void sendChatMessage(PlayerEntity entity, String message) {
+        entity.sendMessage(new StringTextComponent(message), entity.getUniqueID());
+    }
+
+    public static void sendChatMessage(PlayerEntity entity, ITextComponent message) {
+        entity.sendMessage((message), entity.getUniqueID());
+    }
+
     @SubscribeEvent
     public void onServerStarting(FMLServerStartingEvent event) {
         LOGGER.log(INFO, "Loading server stuff");
         MinecraftForge.EVENT_BUS.addListener(new PlayerEvents()::onPlayerJoin);
-    }
-
-    public static void sendChatMessage(PlayerEntity entity, String message){
-        entity.sendMessage(new StringTextComponent(message), entity.getUniqueID());
-    }
-
-    public static void sendChatMessage(PlayerEntity entity, ITextComponent message){
-        entity.sendMessage((message), entity.getUniqueID());
     }
 }

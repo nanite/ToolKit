@@ -27,7 +27,9 @@ public class TKCommand {
                         .then(CommandKillAllExpOrbs.register())
                         .then(CommandHeal.register())
                         .then(CommandNightVision.register())
+
                 //TODO Add drain command (Removes all fluids in given area)
+                //TODO kill all by entity id
         );
     }
 
