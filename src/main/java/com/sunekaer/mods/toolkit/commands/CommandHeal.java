@@ -1,25 +1,23 @@
 package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
-
-
-import static net.minecraft.command.Commands.literal;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
 
 public class CommandHeal {
-    public static ArgumentBuilder<CommandSource, ?> register() {
-        return literal("heal")
-                .requires(cs -> cs.hasPermissionLevel(2))
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+        return Commands.literal("heal")
+                .requires(cs -> cs.hasPermission(2))
                 .executes(ctx -> heal(
-                        ctx.getSource().asPlayer()
+                        ctx.getSource().getPlayerOrException()
                         )
                 );
     }
 
-    private static int heal(ServerPlayerEntity player) {
+    private static int heal(ServerPlayer player) {
         player.setHealth((player.getMaxHealth()));
-        player.getFoodStats().addStats(20, 20);
+        player.getFoodData().eat(20, 20);
         return 1;
     }
 }

@@ -1,13 +1,10 @@
 modLoader="javafml" #mandatory
-loaderVersion="[34,)" #mandatory
+loaderVersion="[38,)" #mandatory
 license = "All Rights Reserved"
-#issueTrackerURL="http://my.issue.tracker/" #optional
 [[mods]] #mandatory
 modId="toolkit" #mandatory
 version="${file.jarVersion}" #mandatory
 displayName="Tool Kit" #mandatory
-#displayURL="http://example.com/" #optional
-#logoFile="logo.png" #optional
 authors="Sunekaer" #optional
 description='''
 This mod adds bunch of useful commands
@@ -15,13 +12,13 @@ This mod adds bunch of useful commands
 [[dependencies.toolkit]]
 modId="forge"
 mandatory=true
-versionRange="[34,)"
+versionRange="[38,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.toolkit]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.16.3,1.17)"
+versionRange="[1.18,)"
 ordering="NONE"
 side="BOTH"

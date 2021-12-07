@@ -8,7 +8,7 @@
   "commands.toolkit.la.missing": "Missing argument 0=block/1=fluid",
   "commands.unknown.argument": "--Unknown argument--",
   "commands.dragonslayer.name": "Slayer",
-  "enchantment.level.32767": "Thanos",
+  "enchantment.level.255": "Thanos",
   "commands.toolkit.killall.monsters.start": "Killing all monsters.",
   "commands.toolkit.killall.monsters.no": "No monsters found!",
   "commands.toolkit.killall.monsters.done": "Removed {0} monsters.",

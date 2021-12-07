@@ -2,52 +2,51 @@ package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 
 import java.text.DecimalFormat;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
-import static net.minecraft.command.Commands.argument;
-import static net.minecraft.command.Commands.literal;
+import java.util.Objects;
 
 public class CommandOreDist {
     private static final DecimalFormat FORMATTER = new DecimalFormat("########0.00");
 
-    public static ArgumentBuilder<CommandSource, ?> register() {
-        return literal("oredist")
-                .requires(cs -> cs.hasPermissionLevel(0))
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+        return Commands.literal("oredist")
+                .requires(cs -> cs.hasPermission(0))
                 .executes(ctx -> {
-                    ctx.getSource().sendErrorMessage(new TranslationTextComponent("commands.toolkit.oredist.missing"));
+                    ctx.getSource().sendFailure(new TranslatableComponent("commands.toolkit.oredist.missing"));
                     return 1;
                 })
-                .then(argument("AreaSize", IntegerArgumentType.integer())
+                .then(Commands.argument("AreaSize", IntegerArgumentType.integer())
                         .executes(ctx -> getOreDist(
                                 ctx.getSource(),
-                                ctx.getSource().asPlayer(),
+                                ctx.getSource().getPlayerOrException(),
                                 IntegerArgumentType.getInteger(ctx, "AreaSize")
                         ))
                 );
     }
 
-    private static int getOreDist(CommandSource source, PlayerEntity player, int size) {
-        Map<String, Integer> map = new HashMap<String, Integer>();
+    private static int getOreDist(CommandSourceStack source, Player player, int size) {
+        Map<String, Integer> map = new HashMap<>();
 
-        double searchSize = ((16 * size) / 2);
-        double startX = player.getPositionVec().getX() - searchSize;
-        double startZ = player.getPositionVec().getZ() - searchSize;
-        double endX = player.getPositionVec().getX() + searchSize;
-        double endZ = player.getPositionVec().getZ() + searchSize;
-        World world = player.getEntityWorld();
+        double searchSize = ((16 * size) >> 1);
+        double startX = player.position().x - searchSize;
+        double startZ = player.position().z - searchSize;
+        double endX = player.position().x + searchSize;
+        double endZ = player.position().z + searchSize;
+        Level world = player.getLevel();
 
         for (int y = 0; y < 255; ++y) {
             for (double x = startX; x < endX; x++) {
@@ -56,9 +55,9 @@ public class CommandOreDist {
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
                     if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !tBlock.equals(Blocks.STONE) && !tBlock.equals(Blocks.DIRT) && !tBlock.equals(Blocks.WATER)) {
-                        if (Tags.Blocks.ORES.func_230236_b_().contains(tBlock.getBlock())) {
-                            String key = tBlock.getBlock().getRegistryName().toString();
-                            Object value = map.get(tBlock.getBlock().getRegistryName().toString());
+                        if (Tags.Blocks.ORES.contains(tBlock)) {
+                            String key = Objects.requireNonNull(tBlock.getRegistryName()).toString();
+                            Object value = map.get(tBlock.getRegistryName().toString());
                             if (value != null) {
                                 map.put(key, map.get(key) + 1);
                             } else {
@@ -72,11 +71,11 @@ public class CommandOreDist {
 
         double sum = map.values().stream().reduce(0, Integer::sum);
         if (sum == 0) {
-            source.sendFeedback(new TranslationTextComponent("\u00A7c No ores found"), true);
+            source.sendSuccess(new TranslatableComponent("\u00A7c No ores found"), true);
             return 1;
         }
         map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x ->
-                source.sendFeedback(new TranslationTextComponent("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
+                source.sendSuccess(new TranslatableComponent("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
         );
         return 1;
     }

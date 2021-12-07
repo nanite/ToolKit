@@ -1,62 +1,60 @@
 package com.sunekaer.mods.toolkit.commands;
 
+
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.minecraft.command.Commands.literal;
 
 public class CommandSlayer {
-    public static ArgumentBuilder<CommandSource, ?> register() {
-        return literal("slayer")
-                .requires(cs -> cs.hasPermissionLevel(2)) //permission
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+        return Commands.literal("slayer")
+                .requires(cs -> cs.hasPermission(2)) //permission
                 .executes(ctx -> giveItem(
-                        ctx.getSource(),
-                        ctx.getSource().asPlayer()
+                        ctx.getSource().getPlayerOrException()
                         )
                 );
     }
 
-    private static int giveItem(CommandSource source, ServerPlayerEntity player) {
+    private static int giveItem(ServerPlayer player) {
         ItemStack itemstack = new ItemStack(Items.DIAMOND_SWORD);
-        itemstack.setDisplayName(new TranslationTextComponent("commands.dragonslayer.name"));
+        itemstack.setHoverName(new TranslatableComponent("commands.dragonslayer.name"));
         Map<Enchantment, Integer> map = new HashMap<>();
-        map.put(Enchantments.SHARPNESS, 32767);
+        map.put(Enchantments.SHARPNESS, 255);
         EnchantmentHelper.setEnchantments(map, itemstack);
 
-        int count = 1;
-        int i = count;
+        int i = 1;
             while(i > 0) {
-                int j = Math.min(Items.CLAY.getItem().getMaxStackSize(), i);
+                int j = i;
                 i -= j;
-                boolean flag = player.inventory.addItemStackToInventory(itemstack);
+                boolean flag = player.getInventory().add(itemstack);
                 if (flag && itemstack.isEmpty()) {
                     itemstack.setCount(1);
-                    ItemEntity itementity1 = player.dropItem(itemstack, false);
+                    ItemEntity itementity1 = player.drop(itemstack, false);
                     if (itementity1 != null) {
                         itementity1.makeFakeItem();
                     }
 
-                    player.world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-                    player.container.detectAndSendChanges();
+                    player.level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.getRandom().nextFloat() - player.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                    player.containerMenu.broadcastChanges();
                 } else {
-                    ItemEntity itementity = player.dropItem(itemstack, false);
+                    ItemEntity itementity = player.drop(itemstack, false);
                     if (itementity != null) {
-                        itementity.setNoPickupDelay();
-                        itementity.setOwnerId(player.getUniqueID());
+                        itementity.setNoPickUpDelay();
+                        itementity.setOwner(player.getUUID());
                     }
                 }
 

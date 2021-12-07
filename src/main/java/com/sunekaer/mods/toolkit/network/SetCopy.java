@@ -1,8 +1,9 @@
 package com.sunekaer.mods.toolkit.network;
 
+
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -14,22 +15,22 @@ public class SetCopy {
         this.toCopy = toCopy;
     }
 
-    public SetCopy(PacketBuffer buf)
+    public SetCopy(FriendlyByteBuf buf)
     {
-        toCopy = buf.readString();
+        toCopy = buf.readUtf();
 
     }
 
-    public void write(PacketBuffer buf)
+    public void write(FriendlyByteBuf buf)
     {
-        buf.writeString(toCopy);
+        buf.writeUtf(toCopy);
 
     }
 
     public void handle(Supplier<NetworkEvent.Context> context)
     {
         context.get().enqueueWork(() ->
-                Minecraft.getInstance().keyboardListener.setClipboardString(toCopy)
+                Minecraft.getInstance().keyboardHandler.setClipboard(toCopy)
         );
 
         context.get().setPacketHandled(true);

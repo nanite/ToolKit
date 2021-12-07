@@ -1,26 +1,27 @@
 package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.world.effect.MobEffects.NIGHT_VISION;
+
 
 public class CommandNightVision {
-    public static ArgumentBuilder<CommandSource, ?> register() {
-        return literal("nightvision")
-            .requires(cs -> cs.hasPermissionLevel(2))
+    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+        return Commands.literal("nightvision")
+            .requires(cs -> cs.hasPermission(2))
             .executes(ctx -> addEffect(
-                ctx.getSource().asPlayer()
+                ctx.getSource().getPlayerOrException()
                 )
             );
     }
 
-    private static int addEffect(ServerPlayerEntity player) {
-        EffectInstance effectinstance = new EffectInstance(Effects.NIGHT_VISION, 9999999, 3, false, false);
-        player.addPotionEffect(effectinstance);
+    private static int addEffect(ServerPlayer player) {
+        MobEffectInstance mobeffectinstance = new MobEffectInstance(NIGHT_VISION, 9999999, 3, false, false);
+        player.addEffect(mobeffectinstance);
     return 1;
     }
 }

@@ -2,15 +2,15 @@ package com.sunekaer.mods.toolkit.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.sunekaer.mods.toolkit.ToolKit;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = ToolKit.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TKCommand {
-    public TKCommand(CommandDispatcher<CommandSource> dispatcher) {
+    public TKCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("tk")
                         .then(CommandDevEnv.register())
