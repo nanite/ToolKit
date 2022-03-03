@@ -55,7 +55,7 @@ public class CommandOreDist {
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
                     if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !tBlock.equals(Blocks.STONE) && !tBlock.equals(Blocks.DIRT) && !tBlock.equals(Blocks.WATER)) {
-                        if (Tags.Blocks.ORES.contains(tBlock)) {
+                        if (tBlock.builtInRegistryHolder().is(Tags.Blocks.ORES)) {
                             String key = Objects.requireNonNull(tBlock.getRegistryName()).toString();
                             Object value = map.get(tBlock.getRegistryName().toString());
                             if (value != null) {

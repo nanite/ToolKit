@@ -45,8 +45,9 @@ public class CommandClear {
                     BlockState tBlockState = world.getBlockState(tBlockPos);
                     Block tBlock = tBlockState.getBlock();
 
-                        if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !Tags.Blocks.ORES.contains(tBlock)) {
-                            if(Objects.requireNonNull(tBlock.getRegistryName()).getNamespace().equals("minecraft")){
+                        if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) ) {
+//                            && !Tags.Blocks.ORES.contains(tBlock)
+                            if(Objects.requireNonNull(tBlock.getRegistryName()).getNamespace().equals("minecraft") && !tBlock.builtInRegistryHolder().is(Tags.Blocks.ORES)) {
                                 world.setBlock(tBlockPos, Blocks.AIR.defaultBlockState(), 2);
                             }
                         }

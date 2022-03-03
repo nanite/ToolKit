@@ -10,8 +10,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +43,7 @@ public class CommandHand {
         }
 
         String itemName = Objects.requireNonNull(stack.getItem().getRegistryName()).toString();
-        List<ResourceLocation> tags = new ArrayList<>(stack.getItem().getTags());
+        List<TagKey> tags = new ArrayList<>(stack.getTags().collect(Collectors.toList()));
 
         String withNBT = "";
         CompoundTag nbt = stack.serializeNBT();
@@ -58,7 +58,7 @@ public class CommandHand {
         Handler.MAIN.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SetCopy(combinedItemNBT));
         if (!tags.isEmpty()) {
             TextComponent tagText = new TextComponent("Tags: ");
-            TextComponent tagsText = new TextComponent(tags.stream().map(ResourceLocation::toString).collect(Collectors.joining(", ")));
+            TextComponent tagsText = new TextComponent(tags.stream().map(TagKey::toString).collect(Collectors.joining(", ")));
             tagsText.withStyle(ChatFormatting.RED);
             source.sendSuccess(tagText.append(tagsText), true);
         }
