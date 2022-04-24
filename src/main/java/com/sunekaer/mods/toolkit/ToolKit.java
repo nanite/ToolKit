@@ -2,6 +2,7 @@ package com.sunekaer.mods.toolkit;
 
 import com.sunekaer.mods.toolkit.config.TKConfig;
 import com.sunekaer.mods.toolkit.event.PlayerEvents;
+import com.sunekaer.mods.toolkit.event.ServerEvents;
 import com.sunekaer.mods.toolkit.network.Handler;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
@@ -40,5 +41,6 @@ public class ToolKit {
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.log(INFO, "Loading server stuff");
         MinecraftForge.EVENT_BUS.addListener(new PlayerEvents()::onPlayerJoin);
+        MinecraftForge.EVENT_BUS.addListener(new ServerEvents()::onTick);
     }
 }
