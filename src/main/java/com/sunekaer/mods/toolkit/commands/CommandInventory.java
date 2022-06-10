@@ -6,8 +6,9 @@ import com.sunekaer.mods.toolkit.network.SetCopy;
 import com.sunekaer.mods.toolkit.utils.CommandUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ public class CommandInventory {
                 continue;
             }
 
-            String itemName = Objects.requireNonNull(stack.getItem().getRegistryName()).toString();
+            String itemName = Objects.requireNonNull(Registry.ITEM.getKey(stack.getItem())).toString();
 
             String withNBT = "";
             CompoundTag nbt = stack.serializeNBT();
@@ -47,7 +48,7 @@ public class CommandInventory {
             clipboard.append(itemName).append(withNBT).append(CommandUtils.NEW_LINE);
         }
 
-        source.sendSuccess(new TranslatableComponent("commands.toolkit.clipboard.copied"), true);
+        source.sendSuccess(Component.translatable("commands.toolkit.clipboard.copied"), true);
         Handler.MAIN.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SetCopy(clipboard.toString()));
         return 1;
     }

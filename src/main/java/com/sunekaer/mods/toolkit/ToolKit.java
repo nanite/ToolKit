@@ -1,12 +1,14 @@
 package com.sunekaer.mods.toolkit;
 
+import com.sunekaer.mods.toolkit.commands.CommandClear;
 import com.sunekaer.mods.toolkit.config.TKConfig;
 import com.sunekaer.mods.toolkit.event.PlayerEvents;
 import com.sunekaer.mods.toolkit.network.Handler;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -29,16 +31,21 @@ public class ToolKit {
     }
 
     public static void sendChatMessage(Player entity, String message) {
-        entity.sendMessage(new TextComponent(message), entity.getUUID());
+        entity.sendSystemMessage(Component.literal(message));
     }
 
-    public static void sendChatMessage(Player entity, TextComponent message) {
-        entity.sendMessage((message), entity.getUUID());
+    public static void sendChatMessage(Player entity, Component message) {
+        entity.sendSystemMessage((message));
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.log(INFO, "Loading server stuff");
         MinecraftForge.EVENT_BUS.addListener(new PlayerEvents()::onPlayerJoin);
+    }
+
+    @SubscribeEvent
+    public void onServerStoppping(ServerStoppingEvent event) {
+        CommandClear.EXECUTOR.shutdownNow();
     }
 }

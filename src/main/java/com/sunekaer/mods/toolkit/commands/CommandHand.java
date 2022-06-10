@@ -7,9 +7,10 @@ import com.sunekaer.mods.toolkit.network.SetCopy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -38,11 +39,11 @@ public class CommandHand {
     private static int getHand(CommandSourceStack source, Player player) {
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (stack.isEmpty()) {
-            source.sendFailure(new TranslatableComponent("commands.toolkit.hand.handempty"));
+            source.sendFailure(Component.translatable("commands.toolkit.hand.handempty"));
             return 0;
         }
 
-        String itemName = Objects.requireNonNull(stack.getItem().getRegistryName()).toString();
+        String itemName = Objects.requireNonNull(Registry.ITEM.getKey(stack.getItem())).toString();
         List<TagKey> tags = new ArrayList<>(stack.getTags().collect(Collectors.toList()));
 
         String withNBT = "";
@@ -54,11 +55,11 @@ public class CommandHand {
         String combinedItemNBT = itemName + withNBT;
 
 
-        source.sendSuccess(new TextComponent(combinedItemNBT).withStyle(ChatFormatting.YELLOW), true);
+        source.sendSuccess(Component.literal(combinedItemNBT).withStyle(ChatFormatting.YELLOW), true);
         Handler.MAIN.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SetCopy(combinedItemNBT));
         if (!tags.isEmpty()) {
-            TextComponent tagText = new TextComponent("Tags: ");
-            TextComponent tagsText = new TextComponent(tags.stream().map(TagKey::toString).collect(Collectors.joining(", ")));
+            MutableComponent tagText = Component.literal("Tags: ");
+            MutableComponent tagsText = Component.literal(tags.stream().map(TagKey::toString).collect(Collectors.joining(", ")));
             tagsText.withStyle(ChatFormatting.RED);
             source.sendSuccess(tagText.append(tagsText), true);
         }

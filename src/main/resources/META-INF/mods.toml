@@ -1,5 +1,5 @@
 modLoader="javafml" #mandatory
-loaderVersion="[40,)" #mandatory
+loaderVersion="[41,)" #mandatory
 license = "All Rights Reserved"
 [[mods]] #mandatory
 modId="toolkit" #mandatory
@@ -12,13 +12,13 @@ This mod adds bunch of useful commands
 [[dependencies.toolkit]]
 modId="forge"
 mandatory=true
-versionRange="[40,)"
+versionRange="[41,)"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.toolkit]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.18,)"
+versionRange="[1.19,)"
 ordering="NONE"
 side="BOTH"

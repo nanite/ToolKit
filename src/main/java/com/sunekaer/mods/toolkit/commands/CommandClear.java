@@ -9,8 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -22,12 +21,17 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.common.Tags;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public class CommandClear {
-    private static final AtomicInteger remainingActions = new AtomicInteger(0);
+    private static final AtomicBoolean COMPLETED = new AtomicBoolean(true);
+    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return (Commands.literal("clear")
@@ -39,11 +43,12 @@ public class CommandClear {
 
     private static int remove(CommandSourceStack source, int size, String filter) throws CommandSyntaxException {
         // Block running
-        if (remainingActions.get() > 0) {
-            source.sendFailure(new TextComponent("Already running, give it a second."));
+        if (!COMPLETED.get()) {
+            source.sendFailure(Component.literal("Already running, give it a second."));
             return 1;
         }
 
+        COMPLETED.set(false);
         var player = source.getPlayerOrException();
 
         // Resolve the predicate check, we're lazy, so we'll get the enum regardless but if the filter looks like a
@@ -53,69 +58,33 @@ public class CommandClear {
         if (filter.startsWith("#")) {
             customCheck = state -> state.is(TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(filter.replace("#", ""))));
         } else if(filter.contains(":")) {
-            customCheck = state -> state.getBlock().getRegistryName().toString().equalsIgnoreCase(filter);
+            customCheck = state -> Registry.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
         }
 
         ServerLevel level = source.getLevel();
-        source.sendSuccess(new TranslatableComponent("commands.toolkit.remove.lagwarring"), true);
+        source.sendSuccess(Component.translatable("commands.toolkit.remove.lagwarring"), true);
 
         // We're removing 1 to make it so 1 = 0, 2 - 1, etc, this means we'll have correct radius 0 = 1x1, 1 = 3x3, 2 = 5x5
         var range = size - 1;
         var chunkPos = player.chunkPosition();
 
-        // Generates a min & max bounds for the removal range
-        RangeBounds bounds = RangeBounds.from(chunkPos, range);
-
-        // Make a wall around the blocks area
-        List<BlockPos> wallPositions = new ArrayList<>();
-        for (int x = bounds.minX - 1; x < bounds.maxX + 1; x++) {
-            for (int z = bounds.minZ - 1; z < bounds.maxZ + 1; z ++ ) {
-                if (x == (bounds.minX - 1) || x == (bounds.maxX + 1) -1 || z == (bounds.minZ - 1) || z == ((bounds.maxZ + 1) - 1)) {
-                    for (int i = level.getMinBuildHeight(); i < level.getMaxBuildHeight(); i ++) {
-                        wallPositions.add(new BlockPos(x, i, z));
-                    }
-                }
-            }
-        }
-
         // Compute the max height for the wall and queue the chunk removal
-        int maxHeight = 0;
+        Predicate<BlockState> finalCustomCheck = customCheck;
+        level.getServer().submit(() -> removeArea(level, range, chunkPos, finalCustomCheck, removalCheck));
+        COMPLETED.set(false);
+
+        return 1;
+    }
+
+    private static void removeArea(ServerLevel level, int range, ChunkPos chunkPos, Predicate<BlockState> check, RemovalPredicate removalCheck) {
         for (int x = chunkPos.x - range; x <= chunkPos.x + range; x++) {
             for (int z = chunkPos.z- range; z <= chunkPos.z + range; z++) {
                 var currentChunkPos = new ChunkPos(x, z);
-                LevelChunkSection[] sections = level.getChunk(x, z).getSections();
-                // Compute the max height based on chunk sections
-                for (LevelChunkSection section : sections) {
-                    if (section.hasOnlyAir()) {
-                        if (maxHeight < section.bottomBlockY()) {
-                            maxHeight = section.bottomBlockY();
-                        }
-                        break;
-                    }
-                }
-
-                Predicate<BlockState> finalCustomCheck = customCheck;
-                source.getServer().submitAsync(() -> removeChunk(level, currentChunkPos, finalCustomCheck != null ? finalCustomCheck : removalCheck.stateCheck));
-                remainingActions.incrementAndGet();
+                removeChunk(level, currentChunkPos, check != null ? check : removalCheck.stateCheck);
             }
         }
 
-        // Run over all the wall positions and build a wall & lights (randomly placed)
-        final int finalMaxHeight = maxHeight;
-        Random random = new Random();
-        source.getServer().submitAsync(() -> wallPositions.stream()
-                .filter(e -> e.getY() < finalMaxHeight)
-                .filter(e -> !level.getBlockState(e).is(Blocks.BEDROCK))
-                .forEach(e -> {
-                    if (random.nextDouble() > .95) {
-                        level.setBlock(e, Blocks.GLOWSTONE.defaultBlockState(), 3);
-                    } else {
-                        level.setBlock(e, Blocks.STONE.defaultBlockState(), 3);
-                    }
-                })
-        );
-
-        return 1;
+        COMPLETED.set(true);
     }
 
     /**
@@ -151,13 +120,11 @@ public class CommandClear {
                 }
             }
         }
-
-        remainingActions.decrementAndGet();
     }
 
     private enum RemovalPredicate {
         JUST_ORES(state -> state.is(Tags.Blocks.ORES)),
-        ORES_AND_MODDED(state -> state.is(Tags.Blocks.ORES) && state.getBlock().getRegistryName().getNamespace().equals("minecraft"));
+        ORES_AND_MODDED(state -> state.is(Tags.Blocks.ORES) && Registry.BLOCK.getKey(state.getBlock()).getNamespace().equals("minecraft"));
 
         public static final List<RemovalPredicate> VALUES = Arrays.asList(values());
         public static final String[] NAMES = VALUES.stream().map(e -> e.toString().toLowerCase()).toArray(String[]::new);

@@ -5,7 +5,9 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,7 +28,7 @@ public class CommandOreDist {
         return Commands.literal("oredist")
                 .requires(cs -> cs.hasPermission(0))
                 .executes(ctx -> {
-                    ctx.getSource().sendFailure(new TranslatableComponent("commands.toolkit.oredist.missing"));
+                    ctx.getSource().sendFailure(Component.translatable("commands.toolkit.oredist.missing"));
                     return 1;
                 })
                 .then(Commands.argument("AreaSize", IntegerArgumentType.integer())
@@ -56,8 +58,9 @@ public class CommandOreDist {
                     Block tBlock = tBlockState.getBlock();
                     if (!tBlock.equals(Blocks.AIR) && !tBlock.equals(Blocks.BEDROCK) && !tBlock.equals(Blocks.STONE) && !tBlock.equals(Blocks.DIRT) && !tBlock.equals(Blocks.WATER)) {
                         if (tBlock.builtInRegistryHolder().is(Tags.Blocks.ORES)) {
-                            String key = Objects.requireNonNull(tBlock.getRegistryName()).toString();
-                            Object value = map.get(tBlock.getRegistryName().toString());
+                            ResourceLocation key1 = Registry.BLOCK.getKey(tBlock);
+                            String key = Objects.requireNonNull(key1).toString();
+                            Object value = map.get(key1.toString());
                             if (value != null) {
                                 map.put(key, map.get(key) + 1);
                             } else {
@@ -71,11 +74,11 @@ public class CommandOreDist {
 
         double sum = map.values().stream().reduce(0, Integer::sum);
         if (sum == 0) {
-            source.sendSuccess(new TranslatableComponent("\u00A7c No ores found"), true);
+            source.sendSuccess(Component.translatable("\u00A7c No ores found"), true);
             return 1;
         }
         map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x ->
-                source.sendSuccess(new TranslatableComponent("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
+                source.sendSuccess(Component.translatable("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
         );
         return 1;
     }

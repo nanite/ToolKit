@@ -1,5 +1,5 @@
 plugins {
-    id "dev.architectury.loom" version "0.11.0-SNAPSHOT"
+    id "dev.architectury.loom" version "0.12.0-SNAPSHOT"
     id 'maven-publish'
     id "com.matthewprenger.cursegradle" version "1.4.0"
 }
@@ -41,7 +41,7 @@ dependencies {
 
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.03.13")
+//        parchment("org.parchmentmc.data:parchment-1.18.2:2022.03.13")
     }
 }
 
