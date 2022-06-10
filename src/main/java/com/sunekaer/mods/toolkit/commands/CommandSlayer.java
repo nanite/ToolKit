@@ -4,7 +4,7 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,7 +31,7 @@ public class CommandSlayer {
 
     private static int giveItem(ServerPlayer player) {
         ItemStack itemstack = new ItemStack(Items.DIAMOND_SWORD);
-        itemstack.setHoverName(new TranslatableComponent("commands.dragonslayer.name"));
+        itemstack.setHoverName(Component.translatable("commands.dragonslayer.name"));
         Map<Enchantment, Integer> map = new HashMap<>();
         map.put(Enchantments.SHARPNESS, 255);
         EnchantmentHelper.setEnchantments(map, itemstack);

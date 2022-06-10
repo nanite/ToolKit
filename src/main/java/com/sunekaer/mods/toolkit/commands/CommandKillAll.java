@@ -3,7 +3,7 @@ package com.sunekaer.mods.toolkit.commands;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -25,7 +25,7 @@ public class CommandKillAll {
         ServerLevel level = source.getLevel();
         AtomicInteger i = new AtomicInteger();
 
-        source.sendSuccess(new TranslatableComponent("commands.toolkit.killall.start"), true);
+        source.sendSuccess(Component.translatable("commands.toolkit.killall.start"), true);
 
         System.out.println(i.get());
 
@@ -39,9 +39,9 @@ public class CommandKillAll {
         System.out.println(i.get());
 
         if (i.get() > 0) {
-            source.sendSuccess(new TranslatableComponent("commands.toolkit.killall.done", i.get()), true);
+            source.sendSuccess(Component.translatable("commands.toolkit.killall.done", i.get()), true);
         } else {
-            source.sendSuccess(new TranslatableComponent("commands.toolkit.killall.no"), true);
+            source.sendSuccess(Component.translatable("commands.toolkit.killall.no"), true);
         }
         return 1;
     }
