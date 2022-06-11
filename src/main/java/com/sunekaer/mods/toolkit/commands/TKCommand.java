@@ -1,8 +1,6 @@
 package com.sunekaer.mods.toolkit.commands;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.sunekaer.mods.toolkit.ToolKit;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -10,8 +8,10 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = ToolKit.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TKCommand {
-    public TKCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(
+
+    @SubscribeEvent
+    public static void registerCommands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(
                 Commands.literal("tk")
                         .then(CommandDevEnv.register())
                         .then(CommandHand.register())
@@ -31,10 +31,5 @@ public class TKCommand {
                 //TODO Add drain command (Removes all fluids in given area)
                 //TODO kill all by entity id
         );
-    }
-
-    @SubscribeEvent
-    public static void registerCommands(RegisterCommandsEvent event) {
-        new TKCommand(event.getDispatcher());
     }
 }
