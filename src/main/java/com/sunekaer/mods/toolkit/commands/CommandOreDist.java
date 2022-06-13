@@ -50,7 +50,7 @@ public class CommandOreDist {
         double endZ = player.position().z + searchSize;
         Level world = player.getLevel();
 
-        for (int y = 0; y < 255; ++y) {
+        for (int y = world.getMinBuildHeight(); y < world.getMaxBuildHeight(); ++y) {
             for (double x = startX; x < endX; x++) {
                 for (double z = startZ; z < endZ; z++) {
                     BlockPos tBlockPos = new BlockPos(x, y, z);

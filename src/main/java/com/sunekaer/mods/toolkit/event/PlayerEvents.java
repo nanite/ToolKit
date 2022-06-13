@@ -3,10 +3,8 @@ package com.sunekaer.mods.toolkit.event;
 import com.sunekaer.mods.toolkit.ToolKit;
 import com.sunekaer.mods.toolkit.config.CommonConfig;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 public class PlayerEvents {
     @SubscribeEvent
