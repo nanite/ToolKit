@@ -10,7 +10,7 @@ apply {
 
 def ENV = System.getenv()
 
-version = "${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 9999}+mc${minecraft_version}"
+version = "${mod_version}-build.${ENV.GITHUB_RUN_NUMBER ?: 7}+mc${minecraft_version}"
 group = 'com.sunekaer.mods'
 archivesBaseName = 'ToolKit'
 
@@ -104,7 +104,7 @@ if (ENV.CURSE_DEPLOY) {
             releaseType = "release"
             addGameVersion "Forge"
             addGameVersion "${minecraft_version}"
-            mainArtifact(jar)
+            mainArtifact(remapJar)
             changelog = getGitChangelog
             changelogType = 'markdown'
         }
