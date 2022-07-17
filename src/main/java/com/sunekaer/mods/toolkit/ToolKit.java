@@ -31,11 +31,11 @@ public class ToolKit {
     }
 
     public static void sendChatMessage(Player entity, String message) {
-        entity.sendSystemMessage(Component.literal(message));
+        entity.displayClientMessage(Component.literal(message), false);
     }
 
     public static void sendChatMessage(Player entity, Component message) {
-        entity.sendSystemMessage((message));
+        entity.displayClientMessage(message, false);
     }
 
     @SubscribeEvent
