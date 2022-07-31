@@ -10,7 +10,7 @@ public class PlayerEvents {
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof Player && CommonConfig.messageOnJoin.get()) {
-            if (!event.getPlayer().getLevel().isClientSide) {
+            if (!event.getEntity().getLevel().isClientSide) {
                 ToolKit.sendChatMessage((Player) event.getEntity(), CommonConfig.joinMessage.get());
             }
         }
