@@ -91,9 +91,9 @@ publishing {
     }
 }
 
-if (ENV.NANITE_TOKEN) {
+if (ENV.CURSE_TOKEN) {
     curseforge {
-        apiKey = ENV.NANITE_TOKEN
+        apiKey = ENV.CURSE_TOKEN
         project {
             id = project.curseforge_id
             releaseType = "release"
