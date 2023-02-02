@@ -31,13 +31,20 @@ loom {
     }
 }
 
+repositories {
+    maven {
+        name = 'ParchmentMC'
+        url = 'https://maven.parchmentmc.org'
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     forge "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.18.2:2022.03.13")
+        parchment("org.parchmentmc.data:parchment-1.18.2:2022.11.06@zip")
     }
 }
 
