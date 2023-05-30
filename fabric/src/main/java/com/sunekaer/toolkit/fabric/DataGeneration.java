@@ -4,6 +4,8 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
+import java.util.stream.IntStream;
+
 public class DataGeneration implements DataGeneratorEntrypoint {
     @Override
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
@@ -53,14 +55,14 @@ public class DataGeneration implements DataGeneratorEntrypoint {
         }
 
         private String createRomanNumeral(int number) throws IllegalAccessException {
-            if (number > 3999) {
+            if (number > 99999) {
                 throw new IllegalAccessException("You can not generate a number higher than 3999 in standard roman numerals");
             }
 
             String[] singles = new String[] {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
             String[] doubles = new String[] {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
             String[] triples = new String[] {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
-            String[] quads   = new String[] {"", "M", "MM", "MMM"};
+            String[] quads   = IntStream.of(9).mapToObj("M"::repeat).toArray(String[]::new);
 
             return quads[number/1000] + triples[(number % 1000) / 100] + doubles[(number % 100) / 10] + singles[number % 10];
         }

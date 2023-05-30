@@ -121,6 +121,9 @@ if (ENV.CURSE_TOKEN) {
             addGameVersion "Forge"
             addGameVersion "${minecraft_version}"
             mainArtifact(remapJar.archiveFile)
+            relations {
+                requiredDependency("architectury-api")
+            }
             changelog = file("../CHANGELOG.md")
             changelogType = 'markdown'
         }
