@@ -1,0 +1,33 @@
+modLoader = "javafml"
+loaderVersion="[${forgebase},)" #mandatory
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "toolkit"
+version = "${version}"
+displayName = "Toolkit"
+authors="Sunekaer"
+description='''
+This mod adds bunch of useful commands
+'''
+
+[[dependencies.toolkit]]
+modId = "forge"
+mandatory = true
+versionRange = "[${forgebase},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.toolkit]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${mcversion},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.toolkit]]
+modId = "architectury"
+mandatory = true
+versionRange = "[${archversion},)"
+ordering = "AFTER"
+side = "BOTH"

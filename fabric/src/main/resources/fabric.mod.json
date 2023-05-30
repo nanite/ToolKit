@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "toolkit",
+  "version": "${version}",
+  "name": "Toolkit",
+  "description": "This mod adds bunch of useful commands",
+  "authors": [
+    "Sunekaer",
+    "ErrorMikey"
+  ],
+  "contact": {
+    "homepage": "https://github.com/nanite/ToolKit/",
+    "sources": "https://github.com/nanite/ToolKit/"
+  },
+  "license": "ARR",
+  "icon": "assets/toolkit/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.sunekaer.toolkit.fabric.ToolkitFabric"
+    ],
+    "fabric-datagen": [
+      "com.sunekaer.toolkit.fabric.DataGeneration"
+    ]
+  },
+  "mixins": [
+    "toolkit.mixins.json",
+    "toolkit-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=${mcversion}",
+    "architectury": ">=${archversion}"
+  }
+}
