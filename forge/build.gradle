@@ -127,5 +127,4 @@ if (ENV.CURSE_TOKEN) {
     }
 }
 
-
 rootProject.tasks.curseforgePublish.dependsOn tasks.curseforge
