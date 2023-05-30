@@ -23,12 +23,12 @@ publishing {
     }
 
     repositories {
-        if (ENV.SAPS_TOKEN) {
+        if (ENV.NANITE_TOKEN) {
             maven {
-                url MAVEN_URL
+                url "https://maven.nanite.dev/releases"
                 credentials {
                     username = "nanite"
-                    password = "${ENV.SAPS_TOKEN}"
+                    password = "${ENV.NANITE_TOKEN}"
                 }
             }
         }

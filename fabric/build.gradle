@@ -112,7 +112,7 @@ if (ENV.CURSE_TOKEN) {
             releaseType = "beta"
             addGameVersion "Fabric"
             addGameVersion "${minecraft_version}"
-            mainArtifact(jar)
+            mainArtifact(remapJar.archiveFile)
             changelog = file("../CHANGELOG.md")
             changelogType = 'markdown'
         }
