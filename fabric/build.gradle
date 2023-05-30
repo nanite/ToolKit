@@ -113,7 +113,7 @@ if (ENV.CURSE_TOKEN) {
             addGameVersion "Fabric"
             addGameVersion "${minecraft_version}"
             mainArtifact(jar)
-            changelog = getGitChangelog
+            changelog = file("../CHANGELOG.md")
             changelogType = 'markdown'
         }
     }
