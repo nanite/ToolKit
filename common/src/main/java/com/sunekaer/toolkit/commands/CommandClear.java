@@ -10,6 +10,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -56,13 +58,13 @@ public class CommandClear {
         var removalCheck = RemovalPredicate.getFromName(filter).orElse(RemovalPredicate.JUST_ORES);
         Predicate<BlockState> customCheck = null;
         if (filter.startsWith("#")) {
-            customCheck = state -> state.is(TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(filter.replace("#", ""))));
+            customCheck = state -> state.is(TagKey.create(Registries.BLOCK, new ResourceLocation(filter.replace("#", ""))));
         } else if(filter.contains(":")) {
-            customCheck = state -> Registry.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
+            customCheck = state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
         }
 
         ServerLevel level = source.getLevel();
-        source.sendSuccess(Component.translatable("commands.toolkit.remove.lagwarring"), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.remove.lagwarring"), true);
 
         // We're removing 1 to make it so 1 = 0, 2 - 1, etc, this means we'll have correct radius 0 = 1x1, 1 = 3x3, 2 = 5x5
         var range = size - 1;
@@ -98,25 +100,24 @@ public class CommandClear {
         LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
         List<LevelChunkSection> sections = Arrays.stream(chunk.getSections()).filter(e -> !e.hasOnlyAir()).toList();
 
-        for (LevelChunkSection section : sections) {
-            for (int y = section.bottomBlockY(); y < section.bottomBlockY() + 16; y ++) {
-                // For people that don't know what bit shifting is, google it...
-                for (int x = chunkPos.x << 4; x < (chunkPos.x << 4) + (1 << 4); x ++) {
-                    for (int z = chunkPos.z << 4; z < (chunkPos.z << 4) + (1 << 4); z ++) {
-                        final BlockPos pos = new BlockPos(x, y, z);
-                        final BlockState state = level.getBlockState(pos);
 
-                        // Don't remove bedrock and skip air, it's a waste of computation
-                        if (state.isAir() || state.getBlock() == Blocks.BEDROCK) {
-                            continue;
-                        }
+        for (int y = level.getMinBuildHeight(); y < level.getMaxBuildHeight(); y ++) {
+            // For people that don't know what bit shifting is, google it...
+            for (int x = chunkPos.x << 4; x < (chunkPos.x << 4) + (1 << 4); x ++) {
+                for (int z = chunkPos.z << 4; z < (chunkPos.z << 4) + (1 << 4); z ++) {
+                    final BlockPos pos = new BlockPos(x, y, z);
+                    final BlockState state = level.getBlockState(pos);
 
-                        if (blockCheck.test(state)) {
-                            continue;
-                        }
-
-                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                    // Don't remove bedrock and skip air, it's a waste of computation
+                    if (state.isAir() || state.getBlock() == Blocks.BEDROCK) {
+                        continue;
                     }
+
+                    if (blockCheck.test(state)) {
+                        continue;
+                    }
+
+                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
                 }
             }
         }
@@ -124,7 +125,7 @@ public class CommandClear {
 
     private enum RemovalPredicate {
         JUST_ORES(state -> state.is(ToolkitPlatform.getOresTag())),
-        ORES_AND_MODDED(state -> state.is(ToolkitPlatform.getOresTag()) && Registry.BLOCK.getKey(state.getBlock()).getNamespace().equals("minecraft"));
+        ORES_AND_MODDED(state -> state.is(ToolkitPlatform.getOresTag()) && BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace().equals("minecraft"));
 
         public static final List<RemovalPredicate> VALUES = Arrays.asList(values());
         public static final String[] NAMES = VALUES.stream().map(e -> e.toString().toLowerCase()).toArray(String[]::new);

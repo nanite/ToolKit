@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -39,8 +41,8 @@ public class CommandHand {
             return 0;
         }
 
-        String itemName = Objects.requireNonNull(Registry.ITEM.getKey(stack.getItem())).toString();
-        List<TagKey> tags = new ArrayList<>(stack.getTags().collect(Collectors.toList()));
+        String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
+        List<TagKey<Item>> tags = stack.getTags().toList();
 
         String withNBT = "";
         CompoundTag nbt = stack.save(new CompoundTag());
@@ -51,14 +53,14 @@ public class CommandHand {
         String combinedItemNBT = itemName + withNBT;
 
 
-        source.sendSuccess(Component.literal(combinedItemNBT).withStyle(ChatFormatting.YELLOW), true);
+        source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(ChatFormatting.YELLOW), true);
         Handler.CHANNEL.sendToPlayer((ServerPlayer) player, new SetCopy(combinedItemNBT));
 
         if (!tags.isEmpty()) {
             MutableComponent tagText = Component.literal("Tags: ");
             MutableComponent tagsText = Component.literal(tags.stream().map(TagKey::toString).collect(Collectors.joining(", ")));
             tagsText.withStyle(ChatFormatting.RED);
-            source.sendSuccess(tagText.append(tagsText), true);
+            source.sendSuccess(() -> tagText.append(tagsText), true);
         }
         return 1;
 

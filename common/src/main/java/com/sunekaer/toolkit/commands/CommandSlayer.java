@@ -43,7 +43,6 @@ public class CommandSlayer {
             ItemEntity drop = player.drop(itemstack.copy(), false);
             if (drop != null) {
                 drop.setNoPickUpDelay();
-                drop.setOwner(player.getUUID());
             }
         }
 

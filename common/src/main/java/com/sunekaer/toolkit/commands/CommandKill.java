@@ -4,15 +4,15 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
-import dev.architectury.registry.registries.Registries;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntitySummonArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.StringRepresentableArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
@@ -65,24 +65,21 @@ public class CommandKill {
         }
     }
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext commandBuildContext) {
         return Commands.literal("kill")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.argument("type", KillTypeArgument.killType())
                         .executes(context -> kill(KillTypeArgument.getKillType(context, "type"), context.getSource())))
-                .then(Commands.literal("by").then(Commands.argument("entity", EntitySummonArgument.id()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, EntitySummonArgument.getSummonableEntity(context, "entity")))));
+                .then(Commands.literal("by").then(Commands.argument("entity", ResourceArgument.resource(commandBuildContext, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
     }
 
-    private static int killByEntity(CommandContext<CommandSourceStack> context, ResourceLocation entityId) throws CommandSyntaxException {
+    private static int killByEntity(CommandContext<CommandSourceStack> context, Holder.Reference<EntityType<?>> entityId) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         var level = source.getLevel();
 
-        EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
-        if (entityType == null) {
-            return -1;
-        }
+        EntityType<?> entityType = entityId.value();
 
-        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", entityId), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityId), true);
         var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
         yeetedEntitiesMessage(source, entitiesKilled, entityId.toString());
 
@@ -94,7 +91,7 @@ public class CommandKill {
         int entitiesKilled = 0;
 
         String typeName = Component.translatable("commands.toolkit.kill.type." + type.name()).getString();
-        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", typeName), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", typeName), true);
 
         if (type == KillType.me || type == KillType.players) {
             for (Player player : level.getPlayers(e -> type.checker.test(e, e))) {
@@ -112,9 +109,9 @@ public class CommandKill {
 
     private static void yeetedEntitiesMessage(CommandSourceStack source, int yeetedAmount, String typeName) {
         if (yeetedAmount > 0) {
-            source.sendSuccess(Component.translatable("commands.toolkit.kill.done", yeetedAmount), true);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.done", yeetedAmount), true);
         } else {
-            source.sendSuccess(Component.translatable("commands.toolkit.kill.no", typeName), true);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.no", typeName), true);
         }
     }
 

@@ -5,9 +5,12 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.*;
 import com.sunekaer.toolkit.utils.EnchantmentHacks;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ItemEnchantmentArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -21,45 +24,46 @@ public class CommandEnchant {
     private static final DynamicCommandExceptionType ERROR_INCOMPATIBLE = new DynamicCommandExceptionType(object -> Component.translatable("commands.enchant.failed.incompatible", object));
     private static final DynamicCommandExceptionType ERROR_NO_ITEM = new DynamicCommandExceptionType(object -> Component.translatable("commands.enchant.failed.itemless", object));
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext commandBuildContext) {
         return Commands.literal("enchant")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.literal("add")
-                        .then(Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
+                        .then(Commands.argument("enchantment", ResourceArgument.resource(commandBuildContext, Registries.ENCHANTMENT))
                                 .then(Commands.argument("level", IntegerArgumentType.integer(0))
                                         .executes(context -> enchant(
                                                 context,
-                                                ItemEnchantmentArgument.getEnchantment(context, "enchantment"),
+                                                ResourceArgument.getEnchantment(context, "enchantment"),
                                                 IntegerArgumentType.getInteger(context, "level")
                                         ))
                                 )
                         )
                 )
                 .then(Commands.literal("remove")
-                        .then(Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
-                                .executes(context -> removeEnchantment(context, ItemEnchantmentArgument.getEnchantment(context, "enchantment"))))
+                        .then(Commands.argument("enchantment", ResourceArgument.resource(commandBuildContext, Registries.ENCHANTMENT))
+                                .executes(context -> removeEnchantment(context, ResourceArgument.getEnchantment(context, "enchantment"))))
                 );
     }
 
-    private static int enchant(CommandContext<CommandSourceStack> context, Enchantment enchantment, int level) throws CommandSyntaxException {
+    private static int enchant(CommandContext<CommandSourceStack> context, Holder.Reference<Enchantment> enchantment, int level) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
 
+        var enchant = enchantment.value();
         var player = source.getPlayer();
         var mainHandItem = getItemInHand(player);
         if (mainHandItem == null) {
             throw ERROR_MISSING_PLAYER.create();
         }
 
-        if (!enchantment.canEnchant(mainHandItem) || !EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(mainHandItem).keySet(), enchantment)) {
+        if (!enchant.canEnchant(mainHandItem) || !EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(mainHandItem).keySet(), enchant)) {
             throw ERROR_INCOMPATIBLE.create(mainHandItem.getItem().getName(mainHandItem).getString());
         }
 
-        EnchantmentHacks.enchantItem(mainHandItem, enchantment, (short) level);
-        source.sendSuccess(Component.translatable("commands.toolkit.enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(level).getString()), false);
+        EnchantmentHacks.enchantItem(mainHandItem, enchant, (short) level);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchant.getFullname(level).getString()), false);
         return 1;
     }
 
-    private static int removeEnchantment(CommandContext<CommandSourceStack> context, Enchantment enchantment) throws CommandSyntaxException {
+    private static int removeEnchantment(CommandContext<CommandSourceStack> context, Holder.Reference<Enchantment> enchantment) throws CommandSyntaxException {
         var source = context.getSource();
         var player = source.getPlayer();
         var mainHandItem = getItemInHand(player);
@@ -67,15 +71,17 @@ public class CommandEnchant {
             throw ERROR_MISSING_PLAYER.create();
         }
 
-        if (!EnchantmentHelper.getEnchantments(mainHandItem).containsKey(enchantment)) {
-            throw ERROR_MISSING_ENCHANTMENT.create(mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1));
+        var enchant = enchantment.value();
+
+        if (!EnchantmentHelper.getEnchantments(mainHandItem).containsKey(enchant)) {
+            throw ERROR_MISSING_ENCHANTMENT.create(mainHandItem.getItem().getName(mainHandItem).getString(), enchant.getFullname(1));
         }
 
-        boolean success = EnchantmentHacks.removeEnchantment(mainHandItem, enchantment);
+        boolean success = EnchantmentHacks.removeEnchantment(mainHandItem, enchant);
         if (success) {
-            source.sendSuccess(Component.translatable("commands.toolkit.remove_enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()), false);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.remove_enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchant.getFullname(1).getString()), false);
         } else {
-            source.sendFailure(Component.translatable("commands.toolkit.remove_enchant.failed", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()));
+            source.sendFailure(Component.translatable("commands.toolkit.remove_enchant.failed", mainHandItem.getItem().getName(mainHandItem).getString(), enchant.getFullname(1).getString()));
         }
         return success ? 1 : 0;
     }

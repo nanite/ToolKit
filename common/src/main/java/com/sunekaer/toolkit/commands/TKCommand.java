@@ -13,7 +13,7 @@ public class TKCommand {
                 .executes(c -> {
                     ServerLevel level = c.getSource()
                             .getPlayerOrException()
-                            .getLevel();
+                            .serverLevel();
 
                     if (level.isRaining() || level.isThundering()) {
                         level.setWeatherParameters(6000, 0, false, false);
@@ -32,10 +32,10 @@ public class TKCommand {
                         .then(CommandHotbar.register())
                         .then(CommandInventory.register())
                         .then(CommandSlayer.register())
-                        .then(CommandEnchant.register())
+                        .then(CommandEnchant.register(context))
                         .then(CommandOreDist.register())
                         .then(CommandClear.register())
-                        .then(CommandKill.register())
+                        .then(CommandKill.register(context))
                         .then(CommandHeal.register())
                         .then(CommandRepair.register())
                         .then(CommandNightVision.register())
