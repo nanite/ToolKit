@@ -104,23 +104,3 @@ publishing {
     }
 }
 
-if (ENV.CURSE_TOKEN) {
-    curseforge {
-        apiKey = ENV.CURSE_TOKEN
-        project {
-            id = project.curseforge_id
-            releaseType = "beta"
-            addGameVersion "Fabric"
-            addGameVersion "${minecraft_version}"
-            mainArtifact(remapJar.archiveFile)
-            relations {
-                requiredDependency("architectury-api")
-            }
-            changelog = file("../CHANGELOG.md")
-            changelogType = 'markdown'
-        }
-    }
-}
-
-
-rootProject.tasks.curseforgePublish.dependsOn tasks.curseforge
