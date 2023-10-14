@@ -79,7 +79,7 @@ public class CommandOreDist {
             return 1;
         }
         map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x ->
-                source.sendSuccess(() -> Component.translatable("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), true)
+                source.sendSuccess(() -> Component.translatable("\u00A7c" + x.getKey() + " \u00A7rCount: " + x.getValue() + " (" + FORMATTER.format(x.getValue() * 100 / sum) + "%%)"), false)
         );
         return 1;
     }
