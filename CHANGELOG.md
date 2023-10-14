@@ -1,3 +1,3 @@
 # Changelog
 
-Updated CI / Build Script
+Fix Ore Dist command sending feedback to ops
