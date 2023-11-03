@@ -25,6 +25,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiPredicate;
 
 public class CommandKill {
@@ -118,7 +120,13 @@ public class CommandKill {
     private static int yeetEntities(BiPredicate<Player, Entity> tester, ServerLevel level, Player player) {
         int entitiesKilled = 0;
 
-        for (Entity entity : level.getAllEntities()) {
+        Iterable<Entity> entities = level.getAllEntities();
+
+        // Copy the entities to a list to avoid concurrent modification
+        List<Entity> entityList = new ArrayList<>();
+        entities.forEach(entityList::add);
+
+        for (Entity entity : entityList) {
             if (entity == null) {
                 continue;
             }
