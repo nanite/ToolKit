@@ -1,3 +1,5 @@
-# Changelog
+## [3.0.3]
 
-Fix Ore Dist command sending feedback to ops
+### Fixed
+
+- An issue causing some of the kill commands to not always kill all the entities they should.
