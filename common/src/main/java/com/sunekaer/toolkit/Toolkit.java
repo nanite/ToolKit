@@ -1,15 +1,14 @@
 package com.sunekaer.toolkit;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.sunekaer.toolkit.commands.CommandClear;
+import com.sunekaer.toolkit.commands.level.ClearCommand;
 import com.sunekaer.toolkit.commands.TKCommand;
 import com.sunekaer.toolkit.event.PlayerEvents;
+import com.sunekaer.toolkit.jobs.ServerTickJobRunner;
 import com.sunekaer.toolkit.network.Handler;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class Toolkit {
         Handler.init();
         LifecycleEvent.SERVER_STOPPING.register(Toolkit::onServerStopping);
         LifecycleEvent.SETUP.register(Toolkit::setup);
-
+        TickEvent.SERVER_POST.register((server) -> ServerTickJobRunner.get().onTick(server));
     }
 
     // Poor mans basic config system :cry:
@@ -82,7 +81,7 @@ public class Toolkit {
     }
 
     private static void onServerStopping(MinecraftServer minecraftServer) {
-        CommandClear.EXECUTOR.shutdownNow();
+        ClearCommand.EXECUTOR.shutdownNow();
     }
 
     public static class DefaultedValue<T> implements Supplier<T> {

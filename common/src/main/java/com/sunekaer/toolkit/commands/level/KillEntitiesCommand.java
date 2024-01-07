@@ -1,10 +1,9 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.level;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
-import dev.architectury.registry.registries.Registries;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntitySummonArgument;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public class CommandKill {
+public class KillEntitiesCommand {
     enum KillType implements StringRepresentable {
         all((p, entity) -> !(entity instanceof AbstractMinecart) && !entity.getUUID().equals(p.getUUID())),
         animals((p, entity) -> entity instanceof Animal),
