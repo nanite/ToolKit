@@ -41,7 +41,7 @@ public class TKCommand {
                 Commands.literal("tk")
                         .then(DevEnvCommand.register())
                         .then(SlayerCommand.register())
-                        .then(EnchantCommand.register())
+                        .then(EnchantCommand.register(context))
                         .then(BlockDistributionCommand.register())
                         .then(ClearCommand.register())
                         .then(KillEntitiesCommand.register())

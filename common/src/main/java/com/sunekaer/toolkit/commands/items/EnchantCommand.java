@@ -5,9 +5,12 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.*;
 import com.sunekaer.toolkit.utils.EnchantmentHacks;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ItemEnchantmentArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -21,28 +24,29 @@ public class EnchantCommand {
     private static final DynamicCommandExceptionType ERROR_INCOMPATIBLE = new DynamicCommandExceptionType(object -> Component.translatable("commands.enchant.failed.incompatible", object));
     private static final DynamicCommandExceptionType ERROR_NO_ITEM = new DynamicCommandExceptionType(object -> Component.translatable("commands.enchant.failed.itemless", object));
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext arg) {
         return Commands.literal("enchant")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.literal("add")
-                        .then(Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
+                        .then(Commands.argument("enchantment", ResourceArgument.resource(arg, Registries.ENCHANTMENT))
                                 .then(Commands.argument("level", IntegerArgumentType.integer(0, 255))
                                         .executes(context -> enchant(
                                                 context,
-                                                ItemEnchantmentArgument.getEnchantment(context, "enchantment"),
+                                                ResourceArgument.getEnchantment(context, "enchantment"),
                                                 IntegerArgumentType.getInteger(context, "level")
                                         ))
                                 )
                         )
                 )
                 .then(Commands.literal("remove")
-                        .then(Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
-                                .executes(context -> removeEnchantment(context, ItemEnchantmentArgument.getEnchantment(context, "enchantment"))))
+                        .then(Commands.argument("enchantment", ResourceArgument.resource(arg, Registries.ENCHANTMENT))
+                                .executes(context -> removeEnchantment(context, ResourceArgument.getEnchantment(context, "enchantment"))))
                 );
     }
 
-    private static int enchant(CommandContext<CommandSourceStack> context, Enchantment enchantment, int level) throws CommandSyntaxException {
+    private static int enchant(CommandContext<CommandSourceStack> context, Holder.Reference<Enchantment> arg2, int level) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
+        Enchantment enchantment = (Enchantment)arg2.value();
 
         var player = source.getPlayer();
         var mainHandItem = getItemInHand(player);
@@ -59,13 +63,15 @@ public class EnchantCommand {
         return 1;
     }
 
-    private static int removeEnchantment(CommandContext<CommandSourceStack> context, Enchantment enchantment) throws CommandSyntaxException {
+    private static int removeEnchantment(CommandContext<CommandSourceStack> context, Holder.Reference<Enchantment> arg2) throws CommandSyntaxException {
         var source = context.getSource();
         var player = source.getPlayer();
         var mainHandItem = getItemInHand(player);
         if (mainHandItem == null) {
             throw ERROR_MISSING_PLAYER.create();
         }
+
+        Enchantment enchantment = (Enchantment)arg2.value();
 
         if (!EnchantmentHelper.getEnchantments(mainHandItem).containsKey(enchantment)) {
             throw ERROR_MISSING_ENCHANTMENT.create(mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1));
