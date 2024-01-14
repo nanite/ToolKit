@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.items;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class CommandEnchant {
+public class EnchantCommand {
     public static final SimpleCommandExceptionType ERROR_MISSING_PLAYER = new SimpleCommandExceptionType(Component.translatable("commands.toolkit.failed.missing_player"));
     private static final Dynamic2CommandExceptionType ERROR_MISSING_ENCHANTMENT = new Dynamic2CommandExceptionType((a, b) -> Component.translatable("commands.toolkit.enchant.failed.missing_enchant", a, b));
     private static final DynamicCommandExceptionType ERROR_INCOMPATIBLE = new DynamicCommandExceptionType(object -> Component.translatable("commands.enchant.failed.incompatible", object));
@@ -26,7 +26,7 @@ public class CommandEnchant {
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.literal("add")
                         .then(Commands.argument("enchantment", ItemEnchantmentArgument.enchantment())
-                                .then(Commands.argument("level", IntegerArgumentType.integer(0))
+                                .then(Commands.argument("level", IntegerArgumentType.integer(0, 255))
                                         .executes(context -> enchant(
                                                 context,
                                                 ItemEnchantmentArgument.getEnchantment(context, "enchantment"),

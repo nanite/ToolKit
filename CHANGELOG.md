@@ -1,5 +1,3 @@
-## 2.3.9
+## 77.0.0
 
-### Fixed
-
-- An issue causing the kill commands to not always kill all the entities and throw an error message instead.
+- Mod has been rewritten and new commands had been added

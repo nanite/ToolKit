@@ -1,10 +1,12 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.level;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.sunekaer.toolkit.ToolkitPlatform;
+import com.sunekaer.toolkit.jobs.ServerTickJobRunner;
+import com.sunekaer.toolkit.utils.ChunkRangeIterator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -18,18 +20,14 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-public class CommandClear {
+public class ClearCommand {
     private static final AtomicBoolean COMPLETED = new AtomicBoolean(true);
     public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
@@ -70,21 +68,26 @@ public class CommandClear {
 
         // Compute the max height for the wall and queue the chunk removal
         Predicate<BlockState> finalCustomCheck = customCheck;
-        level.getServer().submit(() -> removeArea(level, range, chunkPos, finalCustomCheck, removalCheck));
         COMPLETED.set(false);
 
-        return 1;
-    }
-
-    private static void removeArea(ServerLevel level, int range, ChunkPos chunkPos, Predicate<BlockState> check, RemovalPredicate removalCheck) {
         for (int x = chunkPos.x - range; x <= chunkPos.x + range; x++) {
             for (int z = chunkPos.z- range; z <= chunkPos.z + range; z++) {
                 var currentChunkPos = new ChunkPos(x, z);
-                removeChunk(level, currentChunkPos, check != null ? check : removalCheck.stateCheck);
+
+                final boolean shouldComplete = x == chunkPos.x + range && z == chunkPos.z + range;
+
+                ServerTickJobRunner.get().add(() -> {
+                    removeChunk(level, currentChunkPos, finalCustomCheck != null ? finalCustomCheck : removalCheck.stateCheck);
+
+                    // If this is the last chunk, then we're done
+                    if (shouldComplete) {
+                        COMPLETED.set(true);
+                    }
+                });
             }
         }
 
-        COMPLETED.set(true);
+        return 1;
     }
 
     /**
@@ -95,30 +98,37 @@ public class CommandClear {
      * @param blockCheck the predicate that defines what blocks are removed
      */
     private static void removeChunk(ServerLevel level, ChunkPos chunkPos, Predicate<BlockState> blockCheck) {
-        LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
-        List<LevelChunkSection> sections = Arrays.stream(chunk.getSections()).filter(e -> !e.hasOnlyAir()).toList();
+        BlockState airState = Blocks.AIR.defaultBlockState();
 
-        for (LevelChunkSection section : sections) {
-            for (int y = section.bottomBlockY(); y < section.bottomBlockY() + 16; y ++) {
-                // For people that don't know what bit shifting is, google it...
-                for (int x = chunkPos.x << 4; x < (chunkPos.x << 4) + (1 << 4); x ++) {
-                    for (int z = chunkPos.z << 4; z < (chunkPos.z << 4) + (1 << 4); z ++) {
-                        final BlockPos pos = new BlockPos(x, y, z);
-                        final BlockState state = level.getBlockState(pos);
+        ChunkRangeIterator iterator = new ChunkRangeIterator(level, chunkPos, 1, true);
+        List<BlockPos> updatedBlocks = new ArrayList<>();
 
-                        // Don't remove bedrock and skip air, it's a waste of computation
-                        if (state.isAir() || state.getBlock() == Blocks.BEDROCK) {
-                            continue;
-                        }
+        int maxHeight = level.dimension() == ServerLevel.NETHER ? 127 : level.getMaxBuildHeight();
 
-                        if (blockCheck.test(state)) {
-                            continue;
-                        }
+        while (iterator.hasNext()) {
+            BlockPos pos = iterator.next();
+            final BlockState state = level.getBlockState(pos);
 
-                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                    }
+            // Don't remove bedrock and skip air, it's a waste of computation
+            if (state.isAir() || state.getBlock() == Blocks.BEDROCK) {
+                if (!state.isAir() && pos.getY() > level.getMinBuildHeight() && pos.getY() < maxHeight) {
+                    level.setBlock(pos, airState, Block.UPDATE_CLIENTS);
+                    updatedBlocks.add(pos);
                 }
+
+                continue;
             }
+
+            if (blockCheck.test(state)) {
+                continue;
+            }
+
+            level.setBlock(pos, airState, Block.UPDATE_CLIENTS);
+            updatedBlocks.add(pos);
+        }
+
+        for (BlockPos pos : updatedBlocks) {
+            level.blockUpdated(pos, airState.getBlock());
         }
     }
 
@@ -137,22 +147,6 @@ public class CommandClear {
         public static Optional<RemovalPredicate> getFromName(String name) {
             return VALUES.stream().filter(e -> e.toString().toLowerCase().equals(name)).findFirst();
         }
-    }
-
-    private record RangeBounds(
-       int minX,
-       int maxX,
-       int minZ,
-       int maxZ
-    ) {
-      public static RangeBounds from(ChunkPos pos, int range) {
-          return new RangeBounds(
-            ((pos.x - range) << 4),
-            ((pos.x + range) << 4) + (1 << 4),
-            ((pos.z - range) << 4),
-            ((pos.z + range) << 4) + (1 << 4)
-          );
-      }
     }
 }
 
