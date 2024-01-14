@@ -46,14 +46,8 @@ dependencies {
 processResources {
     inputs.property "version", project.version
 
-    def forgeVersion = rootProject.forge_version
-
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version,
-                "forgeversion": forgeVersion,
-                "forgebase": forgeBase,
-                "mcversion": rootProject.minecraft_version,
-                "archversion": rootProject.architectury_version
+        expand "version": project.version
     }
 }
 
