@@ -1,6 +1,5 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 architectury {
@@ -37,7 +36,7 @@ configurations {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    forge "net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}"
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
@@ -47,8 +46,7 @@ dependencies {
 processResources {
     inputs.property "version", project.version
 
-    def forgeVersion = ((String) rootProject.forge_version).split("-").last()
-    def forgeBase = forgeVersion.split("\\.").first()
+    def forgeVersion = rootProject.forge_version
 
     filesMatching("META-INF/mods.toml") {
         expand "version": project.version,
@@ -71,7 +69,7 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     setArchiveClassifier(null)
-    setArchivesBaseName("${rootProject.archivesBaseName}-${project.name}")
+    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}")
 }
 
 jar {
@@ -93,41 +91,8 @@ components.java {
 publishing {
     publications {
         mavenForge(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
+            artifactId = "${rootProject.archivesBaseName}-${project.name}"
             from components.java
         }
     }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        if (ENV.NANITE_TOKEN) {
-            maven {
-                url "https://maven.nanite.dev/releases"
-                credentials {
-                    username = "nanite"
-                    password = "${ENV.NANITE_TOKEN}"
-                }
-            }
-        }
-    }
 }
-
-if (ENV.CURSE_TOKEN) {
-    curseforge {
-        apiKey = ENV.CURSE_TOKEN
-        project {
-            id = project.curseforge_id
-            releaseType = "release"
-            addGameVersion "Forge"
-            addGameVersion "${minecraft_version}"
-            mainArtifact(remapJar.archiveFile)
-            relations {
-                requiredDependency("architectury-api")
-            }
-            changelog = file("../CHANGELOG.md")
-            changelogType = 'markdown'
-        }
-    }
-}
-
-rootProject.tasks.curseforgePublish.dependsOn tasks.curseforge
