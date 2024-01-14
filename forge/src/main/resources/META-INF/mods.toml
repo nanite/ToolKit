@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion="[${forgebase},)" #mandatory
+loaderVersion="[43,)" #mandatory
 license = "All Rights Reserved"
 
 [[mods]]
@@ -14,20 +14,20 @@ This mod adds bunch of useful commands
 [[dependencies.toolkit]]
 modId = "forge"
 mandatory = true
-versionRange = "[${forgebase},)"
+versionRange = "[43,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.toolkit]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[${mcversion},)"
+versionRange = "[1.19.2,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.toolkit]]
 modId = "architectury"
 mandatory = true
-versionRange = "[${archversion},)"
+versionRange = "[6.5.85,)"
 ordering = "AFTER"
 side = "BOTH"
