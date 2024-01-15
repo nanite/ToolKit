@@ -78,6 +78,12 @@ publishMods {
         modLoaders.add("forge")
     }
 
+    def neoForge = publishOptions {
+        file = project.provider { project(":neoforge").tasks.remapJar }.flatMap { it.archiveFile }
+        displayName = "[NEOFORGE][${minecraft_version}] ${project.name} ${mod_version}"
+        modLoaders.add("neoforge")
+    }
+
     def curseForgeOptions = curseforgeOptions {
         accessToken = providers.environmentVariable("CURSE_TOKEN")
         projectId = "${curseforge_id}"
@@ -95,10 +101,23 @@ publishMods {
         requires {
             slug = "fabric-api"
         }
+        requires {
+            slug = "architectury-api"
+        }
     }
 
     curseforge("curseforgeForge") {
         from(curseForgeOptions, forgeOptions)
+        requires {
+            slug = "architectury-api"
+        }
+    }
+
+    curseforge("curseforgeNeoForge") {
+        from(curseForgeOptions, neoForge)
+        requires {
+            slug = "architectury-api"
+        }
     }
 
     if (providers.environmentVariable("MODRINTH_TOKEN").getOrNull() != null) {
@@ -107,10 +126,23 @@ publishMods {
             requires {
                 slug = "fabric-api"
             }
+            requires {
+                slug = "architectury-api"
+            }
         }
 
         modrinth("modrinthForge") {
             from(modrinthOptions, forgeOptions)
+            requires {
+                slug = "architectury-api"
+            }
+        }
+
+        modrinth("modrinthNeoforge") {
+            from(modrinthOptions, neoForge)
+            requires {
+                slug = "architectury-api"
+            }
         }
     }
 }
