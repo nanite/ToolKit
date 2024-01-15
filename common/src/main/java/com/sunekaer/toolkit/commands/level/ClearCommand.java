@@ -12,6 +12,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -54,9 +56,9 @@ public class ClearCommand {
         var removalCheck = RemovalPredicate.getFromName(filter).orElse(RemovalPredicate.JUST_ORES);
         Predicate<BlockState> customCheck = null;
         if (filter.startsWith("#")) {
-            customCheck = state -> state.is(TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(filter.replace("#", ""))));
+            customCheck = state -> state.is(TagKey.create(Registries.BLOCK, new ResourceLocation(filter.replace("#", ""))));
         } else if(filter.contains(":")) {
-            customCheck = state -> Registry.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
+            customCheck = state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
         }
 
         ServerLevel level = source.getLevel();
@@ -134,7 +136,7 @@ public class ClearCommand {
 
     private enum RemovalPredicate {
         JUST_ORES(state -> state.is(ToolkitPlatform.getOresTag())),
-        ORES_AND_MODDED(state -> state.is(ToolkitPlatform.getOresTag()) && Registry.BLOCK.getKey(state.getBlock()).getNamespace().equals("minecraft"));
+        ORES_AND_MODDED(state -> state.is(ToolkitPlatform.getOresTag()) && BuiltInRegistries.BLOCK.getKey(state.getBlock()).getNamespace().equals("minecraft"));
 
         public static final List<RemovalPredicate> VALUES = Arrays.asList(values());
         public static final String[] NAMES = VALUES.stream().map(e -> e.toString().toLowerCase()).toArray(String[]::new);

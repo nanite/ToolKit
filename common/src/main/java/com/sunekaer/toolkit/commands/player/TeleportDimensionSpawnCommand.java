@@ -38,7 +38,7 @@ public class TeleportDimensionSpawnCommand {
         for (Entity entity : entities) {
             BlockPos pos = entity.blockPosition();
             if (!level.getWorldBorder().isWithinBounds(pos)) {
-                pos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(level.getWorldBorder().getCenterX(), 0.0, level.getWorldBorder().getCenterZ()));
+                pos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos((int) level.getWorldBorder().getCenterX(), 0, (int) level.getWorldBorder().getCenterZ()));
             }
 
             int playerXp = 0;

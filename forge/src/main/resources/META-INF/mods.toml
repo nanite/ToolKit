@@ -21,7 +21,7 @@ side = "BOTH"
 [[dependencies.toolkit]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.5,)"
+versionRange = "[1.19.4,)"
 ordering = "NONE"
 side = "BOTH"
 

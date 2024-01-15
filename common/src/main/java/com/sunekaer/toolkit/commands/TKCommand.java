@@ -44,7 +44,7 @@ public class TKCommand {
                         .then(EnchantCommand.register(context))
                         .then(BlockDistributionCommand.register())
                         .then(ClearCommand.register())
-                        .then(KillEntitiesCommand.register())
+                        .then(KillEntitiesCommand.register(context))
                         .then(HealCommand.register())
                         .then(RepairItemCommand.register())
                         .then(NightVisionCommand.register())
