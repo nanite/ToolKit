@@ -25,7 +25,7 @@ public class TKCommand {
                 .executes(c -> {
                     ServerLevel level = c.getSource()
                             .getPlayerOrException()
-                            .getLevel();
+                            .serverLevel();
 
                     if (level.isRaining() || level.isThundering()) {
                         level.setWeatherParameters(6000, 0, false, false);

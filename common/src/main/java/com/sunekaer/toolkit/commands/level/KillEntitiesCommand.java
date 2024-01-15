@@ -82,7 +82,7 @@ public class KillEntitiesCommand {
 
         EntityType<?> entityType = reference.value();
 
-        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", entityType), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType), true);
         var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
         yeetedEntitiesMessage(source, entitiesKilled, entityType.toShortString());
 
@@ -94,7 +94,7 @@ public class KillEntitiesCommand {
         int entitiesKilled = 0;
 
         String typeName = Component.translatable("commands.toolkit.kill.type." + type.name()).getString();
-        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", typeName), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", typeName), true);
 
         if (type == KillType.me || type == KillType.players) {
             for (Player player : level.getPlayers(e -> type.checker.test(e, e))) {
@@ -112,9 +112,9 @@ public class KillEntitiesCommand {
 
     private static void yeetedEntitiesMessage(CommandSourceStack source, int yeetedAmount, String typeName) {
         if (yeetedAmount > 0) {
-            source.sendSuccess(Component.translatable("commands.toolkit.kill.done", yeetedAmount), true);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.done", yeetedAmount), true);
         } else {
-            source.sendSuccess(Component.translatable("commands.toolkit.kill.no", typeName), true);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.no", typeName), true);
         }
     }
 

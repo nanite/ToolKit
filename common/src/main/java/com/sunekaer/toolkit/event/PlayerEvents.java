@@ -8,7 +8,7 @@ public class PlayerEvents {
 
     public static void playerJoined(ServerPlayer player) {
         if (player != null && Toolkit.SHOW_ON_JOIN_MESSAGE.get()) {
-            if (!player.getLevel().isClientSide) {
+            if (!player.level().isClientSide) {
                 player.displayClientMessage(Component.literal(Toolkit.JOIN_MESSAGE.get()), false);
             }
         }

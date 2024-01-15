@@ -17,7 +17,7 @@ public class GodCommand {
 
     private static int god(CommandContext<CommandSourceStack> context, ServerPlayer player) {
         player.setInvulnerable(!player.isInvulnerable());
-        context.getSource().sendSuccess(Component.literal(player.isInvulnerable() ? "God mode enabled" : "God mode disabled"), false);
+        context.getSource().sendSuccess(() -> Component.literal(player.isInvulnerable() ? "God mode enabled" : "God mode disabled"), false);
 
         return 1;
     }

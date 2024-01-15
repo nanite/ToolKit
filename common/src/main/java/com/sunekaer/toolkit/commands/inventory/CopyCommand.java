@@ -66,7 +66,7 @@ public class CopyCommand {
             clipboard.append(itemName).append(withNBT).append(CommandUtils.NEW_LINE);
         }
 
-        source.sendSuccess(Component.translatable("commands.toolkit.clipboard.copied"), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.clipboard.copied"), true);
         Handler.CHANNEL.sendToPlayer(player, new SetCopy(clipboard.toString()));
 
         return 1;

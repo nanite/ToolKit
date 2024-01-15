@@ -50,7 +50,7 @@ public class PrintCommand {
 
             String combinedItemNBT = itemName + withNBT;
 
-            source.sendSuccess(Component.literal(combinedItemNBT).withStyle(Style.EMPTY
+            source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(Style.EMPTY
                     .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, combinedItemNBT))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy tag")))
                     .withColor(ChatFormatting.YELLOW)), false);
@@ -65,7 +65,7 @@ public class PrintCommand {
 
             for (TagKey<?> tag : tags) {
                 var tagString = String.format("#%s", tag.location());
-                source.sendSuccess(Component.literal("- ").append(Component.literal(tagString).withStyle(Style.EMPTY.withColor(ChatFormatting.RED)
+                source.sendSuccess(() -> Component.literal("- ").append(Component.literal(tagString).withStyle(Style.EMPTY.withColor(ChatFormatting.RED)
                         .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, tagString))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy tag")))
                 )), false);

@@ -71,7 +71,7 @@ public enum InventoryCollector {
             return items;
         }
 
-        var level = player.level;
+        var level = player.level();
         return ToolkitPlatform.getInventoryFromBlockEntity(level, blockHit.getBlockPos(), blockHit.getDirection());
     });
 

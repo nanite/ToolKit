@@ -26,7 +26,7 @@ public class RepairItemCommand {
         }
 
         item.setDamageValue(0);
-        source.sendSuccess(Component.translatable("commands.toolkit.repair.success", item.getItem().getName(item).getString()), false);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.repair.success", item.getItem().getName(item).getString()), false);
         return 1;
     }
 }

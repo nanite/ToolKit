@@ -59,7 +59,7 @@ public class EnchantCommand {
         }
 
         EnchantmentHacks.enchantItem(mainHandItem, enchantment, (short) level);
-        source.sendSuccess(Component.translatable("commands.toolkit.enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(level).getString()), false);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(level).getString()), false);
         return 1;
     }
 
@@ -79,7 +79,7 @@ public class EnchantCommand {
 
         boolean success = EnchantmentHacks.removeEnchantment(mainHandItem, enchantment);
         if (success) {
-            source.sendSuccess(Component.translatable("commands.toolkit.remove_enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()), false);
+            source.sendSuccess(() -> Component.translatable("commands.toolkit.remove_enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()), false);
         } else {
             source.sendFailure(Component.translatable("commands.toolkit.remove_enchant.failed", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()));
         }

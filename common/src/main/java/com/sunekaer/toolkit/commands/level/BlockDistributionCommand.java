@@ -66,15 +66,15 @@ public class BlockDistributionCommand {
 
         double sum = blockOccurrences.size();
         if (sum == 0) {
-            source.sendSuccess(Component.literal("No ores found").withStyle(ChatFormatting.RED), true);
+            source.sendSuccess(() -> Component.literal("No ores found").withStyle(ChatFormatting.RED), true);
             return 1;
         }
 
         // Sort the multiset by count
         var sortedSet = LinkedHashMultiset.create(blockOccurrences.entrySet().stream().sorted((a, b) -> Integer.compare(b.getCount(), a.getCount())).toList());
 
-        source.sendSuccess(Component.literal("Block distribution for " + size + "x" + size + " chunks (total: " + COMMA_FORMATTER.format(sum) + ")").withStyle(ChatFormatting.GREEN), false);
-        source.sendSuccess(Component.literal(""), false);
+        source.sendSuccess(() -> Component.literal("Block distribution for " + size + "x" + size + " chunks (total: " + COMMA_FORMATTER.format(sum) + ")").withStyle(ChatFormatting.GREEN), false);
+        source.sendSuccess(() -> Component.literal(""), false);
 
         int i = 0;
         for (Multiset.Entry<String> entry : sortedSet) {
@@ -90,7 +90,7 @@ public class BlockDistributionCommand {
             component.append(Component.literal("]").withStyle(Style.EMPTY.withColor(yellow)));
             component.append(Component.literal(" " + entry.getElement()).withStyle(Style.EMPTY.withColor(white)));
 
-            source.sendSuccess(component, false);
+            source.sendSuccess(() -> component, false);
             i ++;
         }
 

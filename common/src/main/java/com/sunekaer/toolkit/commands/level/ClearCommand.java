@@ -62,7 +62,7 @@ public class ClearCommand {
         }
 
         ServerLevel level = source.getLevel();
-        source.sendSuccess(Component.translatable("commands.toolkit.remove.lagwarring"), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.remove.lagwarring"), true);
 
         // We're removing 1 to make it so 1 = 0, 2 - 1, etc, this means we'll have correct radius 0 = 1x1, 1 = 3x3, 2 = 5x5
         var range = size - 1;
