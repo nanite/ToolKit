@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.dev;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -7,17 +7,12 @@ import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.GameRules;
 
-public class CommandDevEnv {
-
+public class DevEnvCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("devenv")
                 .requires(cs -> cs.hasPermission(2)) //permission
                 .then(Commands.argument("True/False", BoolArgumentType.bool())
-                        .executes(ctx -> setDevEnv(
-                                        ctx.getSource(),
-                                        BoolArgumentType.getBool(ctx, "True/False")
-                                )
-                        )
+                        .executes(ctx -> setDevEnv(ctx.getSource(), BoolArgumentType.getBool(ctx, "True/False")))
                 );
     }
 

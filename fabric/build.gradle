@@ -1,6 +1,5 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 
 architectury {
@@ -63,7 +62,7 @@ remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     setArchiveClassifier(null)
-    setArchivesBaseName("${rootProject.archivesBaseName}-${project.name}")
+    setArchivesBaseName("${rootProject.archives_base_name}-${project.name}")
 }
 
 jar {
@@ -85,22 +84,8 @@ components.java {
 publishing {
     publications {
         mavenFabric(MavenPublication) {
-            artifactId = rootProject.archives_base_name + "-" + project.name
+            artifactId = "${rootProject.archivesBaseName}-${project.name}"
             from components.java
         }
     }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        if (ENV.NANITE_TOKEN) {
-            maven {
-                url "https://maven.nanite.dev/releases"
-                credentials {
-                    username = "nanite"
-                    password = "${ENV.NANITE_TOKEN}"
-                }
-            }
-        }
-    }
 }
-

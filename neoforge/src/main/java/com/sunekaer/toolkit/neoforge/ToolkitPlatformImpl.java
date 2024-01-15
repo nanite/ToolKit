@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.forge;
+package com.sunekaer.toolkit.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -7,9 +7,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -37,7 +37,7 @@ public class ToolkitPlatformImpl {
             return items;
         }
 
-        entity.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
+        entity.getCapability(Capabilities.ITEM_HANDLER).ifPresent(handler -> {
             for (int i = 0; i < handler.getSlots(); i++) {
                 var stack = handler.getStackInSlot(i);
                 if (stack.isEmpty()) {

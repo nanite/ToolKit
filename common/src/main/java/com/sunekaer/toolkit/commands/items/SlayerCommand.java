@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.items;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
@@ -17,7 +17,7 @@ import java.util.List;
 import static net.minecraft.world.item.ItemStack.TAG_ENCH;
 
 
-public class CommandSlayer {
+public class SlayerCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("slayer")
                 .requires(cs -> cs.hasPermission(2)) //permission
@@ -43,6 +43,7 @@ public class CommandSlayer {
             ItemEntity drop = player.drop(itemstack.copy(), false);
             if (drop != null) {
                 drop.setNoPickUpDelay();
+                drop.setTarget(player.getUUID());
             }
         }
 

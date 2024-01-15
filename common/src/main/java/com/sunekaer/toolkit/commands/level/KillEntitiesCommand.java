@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.commands;
+package com.sunekaer.toolkit.commands.level;
 
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
-public class CommandKill {
+public class KillEntitiesCommand {
     enum KillType implements StringRepresentable {
         all((p, entity) -> !(entity instanceof AbstractMinecart) && !entity.getUUID().equals(p.getUUID())),
         animals((p, entity) -> entity instanceof Animal),
@@ -67,23 +67,24 @@ public class CommandKill {
         }
     }
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext commandBuildContext) {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext arg) {
         return Commands.literal("kill")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.argument("type", KillTypeArgument.killType())
                         .executes(context -> kill(KillTypeArgument.getKillType(context, "type"), context.getSource())))
-                .then(Commands.literal("by").then(Commands.argument("entity", ResourceArgument.resource(commandBuildContext, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
+                .then(Commands.literal("by").then(
+                        Commands.argument("entity", ResourceArgument.resource(arg, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
     }
 
-    private static int killByEntity(CommandContext<CommandSourceStack> context, Holder.Reference<EntityType<?>> entityId) throws CommandSyntaxException {
+    private static int killByEntity(CommandContext<CommandSourceStack> context, Holder.Reference<EntityType<?>> reference) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         var level = source.getLevel();
 
-        EntityType<?> entityType = entityId.value();
+        EntityType<?> entityType = reference.value();
 
-        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityId), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType), true);
         var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
-        yeetedEntitiesMessage(source, entitiesKilled, entityId.toString());
+        yeetedEntitiesMessage(source, entitiesKilled, entityType.toShortString());
 
         return 0;
     }
@@ -119,7 +120,6 @@ public class CommandKill {
 
     private static int yeetEntities(BiPredicate<Player, Entity> tester, ServerLevel level, Player player) {
         int entitiesKilled = 0;
-
         Iterable<Entity> entities = level.getAllEntities();
 
         // Copy the entities to a list to avoid concurrent modification
