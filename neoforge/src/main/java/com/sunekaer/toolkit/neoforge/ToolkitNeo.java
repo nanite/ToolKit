@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.neo;
+package com.sunekaer.toolkit.neoforge;
 
 import com.sunekaer.toolkit.commands.level.KillEntitiesCommand;
 import com.sunekaer.toolkit.Toolkit;
@@ -13,9 +13,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 
-@Mod(Toolkit.MODID)
+@Mod(Toolkit.MOD_ID)
 public class ToolkitNeo {
-    private static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_REGISTRY = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Toolkit.MODID);
+    private static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_REGISTRY = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Toolkit.MOD_ID);
     private static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<KillEntitiesCommand.KillTypeArgument>> KILL_TYPE_ARG = ARGUMENT_REGISTRY.register("kill_type",
             () -> ArgumentTypeInfos.registerByClass(KillEntitiesCommand.KillTypeArgument.class, SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)));
     public ToolkitNeo() {

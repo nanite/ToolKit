@@ -66,7 +66,7 @@ public class DrainFluidCommand {
         BlockState state = level.getBlockState(pos);
 
         if (state.isAir()) {
-            source.sendFailure(Component.literal("Go away"));
+            source.sendFailure(Component.literal("Go closer to the fluid source"));
             return 1;
         }
 

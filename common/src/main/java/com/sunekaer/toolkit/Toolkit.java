@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 public class Toolkit {
     private static final Logger LOGGER = LoggerFactory.getLogger(Toolkit.class);
-    public static final String MODID = "toolkit";
+    public static final String MOD_ID = "toolkit";
 
     public static final DefaultedValue<Boolean> SHOW_ON_JOIN_MESSAGE = new DefaultedValue<>(true);
     public static final DefaultedValue<String> JOIN_MESSAGE = new DefaultedValue<>("Hello from ToolKit, this message can be change or disabled in config.");

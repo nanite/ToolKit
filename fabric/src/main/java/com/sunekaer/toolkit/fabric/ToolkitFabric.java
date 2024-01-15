@@ -12,7 +12,7 @@ public class ToolkitFabric implements ModInitializer {
     public void onInitialize() {
         Toolkit.init();
         ArgumentTypeRegistry.registerArgumentType(
-                new ResourceLocation(Toolkit.MODID, "kill_type"),
+                new ResourceLocation(Toolkit.MOD_ID, "kill_type"),
                 KillEntitiesCommand.KillTypeArgument.class,
                 SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)
         );

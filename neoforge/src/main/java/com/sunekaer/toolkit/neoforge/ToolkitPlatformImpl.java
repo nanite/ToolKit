@@ -1,4 +1,4 @@
-package com.sunekaer.toolkit.neo;
+package com.sunekaer.toolkit.neoforge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
