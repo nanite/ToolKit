@@ -48,14 +48,13 @@ public class EnchantCommand {
         CommandSourceStack source = context.getSource();
         Enchantment enchantment = (Enchantment)arg2.value();
 
-        var enchant = enchantment.value();
         var player = source.getPlayer();
         var mainHandItem = getItemInHand(player);
         if (mainHandItem == null) {
             throw ERROR_MISSING_PLAYER.create();
         }
 
-        if (!enchant.canEnchant(mainHandItem) || !EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(mainHandItem).keySet(), enchant)) {
+        if (!enchantment.canEnchant(mainHandItem) || !EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantments(mainHandItem).keySet(), enchantment)) {
             throw ERROR_INCOMPATIBLE.create(mainHandItem.getItem().getName(mainHandItem).getString());
         }
 
@@ -78,11 +77,11 @@ public class EnchantCommand {
             throw ERROR_MISSING_ENCHANTMENT.create(mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1));
         }
 
-        boolean success = EnchantmentHacks.removeEnchantment(mainHandItem, enchant);
+        boolean success = EnchantmentHacks.removeEnchantment(mainHandItem, enchantment);
         if (success) {
             source.sendSuccess(() -> Component.translatable("commands.toolkit.remove_enchant.success", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()), false);
         } else {
-            source.sendFailure(Component.translatable("commands.toolkit.remove_enchant.failed", mainHandItem.getItem().getName(mainHandItem).getString(), enchant.getFullname(1).getString()));
+            source.sendFailure(Component.translatable("commands.toolkit.remove_enchant.failed", mainHandItem.getItem().getName(mainHandItem).getString(), enchantment.getFullname(1).getString()));
         }
         return success ? 1 : 0;
     }
