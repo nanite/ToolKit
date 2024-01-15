@@ -8,8 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -32,20 +32,16 @@ public class ToolkitPlatformImpl {
     public static List<ItemStack> getInventoryFromBlockEntity(Level level, BlockPos pos, @Nullable Direction direction) {
         List<ItemStack> items = new ArrayList<>();
 
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity == null) {
-            return items;
-        }
-
-        entity.getCapability(Capabilities.ITEM_HANDLER).ifPresent(handler -> {
-            for (int i = 0; i < handler.getSlots(); i++) {
-                var stack = handler.getStackInSlot(i);
+        var obj = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.UP);
+        if(obj != null) {
+            for (int i = 0; i < obj.getSlots(); i++) {
+                var stack = obj.getStackInSlot(i);
                 if (stack.isEmpty()) {
                     continue;
                 }
                 items.add(stack);
             }
-        });
+        }
 
         return items;
     }

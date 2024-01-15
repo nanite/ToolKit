@@ -27,7 +27,7 @@ side = "BOTH"
 
 [[dependencies.toolkit]]
 modId = "architectury"
-mandatory = true
+required = true
 versionRange = "[11.0.11,)"
 ordering = "AFTER"
 side = "BOTH"
