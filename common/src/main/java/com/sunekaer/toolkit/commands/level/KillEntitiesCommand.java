@@ -4,14 +4,15 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntitySummonArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.commands.arguments.StringRepresentableArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
-import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
@@ -66,26 +67,24 @@ public class KillEntitiesCommand {
         }
     }
 
-    public static ArgumentBuilder<CommandSourceStack, ?> register() {
+    public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext arg) {
         return Commands.literal("kill")
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.argument("type", KillTypeArgument.killType())
                         .executes(context -> kill(KillTypeArgument.getKillType(context, "type"), context.getSource())))
-                .then(Commands.literal("by").then(Commands.argument("entity", EntitySummonArgument.id()).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, EntitySummonArgument.getSummonableEntity(context, "entity")))));
+                .then(Commands.literal("by").then(
+                        Commands.argument("entity", ResourceArgument.resource(arg, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
     }
 
-    private static int killByEntity(CommandContext<CommandSourceStack> context, ResourceLocation entityId) throws CommandSyntaxException {
+    private static int killByEntity(CommandContext<CommandSourceStack> context, Holder.Reference<EntityType<?>> reference) throws CommandSyntaxException {
         CommandSourceStack source = context.getSource();
         var level = source.getLevel();
 
-        EntityType<?> entityType = Registry.ENTITY_TYPE.get(entityId);
-        if (entityType == null) {
-            return -1;
-        }
+        EntityType<?> entityType = reference.value();
 
-        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", entityId), true);
+        source.sendSuccess(Component.translatable("commands.toolkit.kill.start", entityType), true);
         var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
-        yeetedEntitiesMessage(source, entitiesKilled, entityId.toString());
+        yeetedEntitiesMessage(source, entitiesKilled, entityType.toShortString());
 
         return 0;
     }

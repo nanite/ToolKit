@@ -11,6 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -58,7 +59,7 @@ public class BlockDistributionCommand {
             }
 
             if (state.is(ToolkitPlatform.getOresTag())) {
-                ResourceLocation key = Registry.BLOCK.getKey(state.getBlock());
+                ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
                 blockOccurrences.add(key.toString());
             }
         }

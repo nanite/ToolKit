@@ -1,4 +1,4 @@
-## 77.0.0
+## 79.0.0
 
 - Improved performance on the clear chunk and scan chunk commands
 - Added a teleport to dimension command
