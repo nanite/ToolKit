@@ -21,7 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 public class TKCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context, Commands.CommandSelection selection) {
         dispatcher.register(Commands.literal("toggledownfall")
-                .requires(cs -> Commands.LEVEL_GAMEMASTERS)
+                .requires(cs -> cs.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(c -> {
                     ServerLevel level = c.getSource()
                             .getPlayerOrException()
