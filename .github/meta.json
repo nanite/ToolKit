@@ -1,4 +1,53 @@
 {
-  "curseID" : 324888,
-  "maven" : "https://maven.nanite.dev/releases/com/sunekaer/mods/ToolKit"
+  "spec": 2,
+  "maven": [
+    {
+      "name": "Common",
+      "url": "https://maven.nanite.dev/releases/com/sunekaer/mods/ToolKit-common"
+    },
+    {
+      "name": "Forge",
+      "url": "https://maven.nanite.dev/releases/com/sunekaer/mods/ToolKit-forge"
+    },
+    {
+      "name": "Fabric",
+      "url": "https://maven.nanite.dev/releases/com/sunekaer/mods/ToolKit-fabric"
+    },
+    {
+      "name": "NeoForge",
+      "url": "https://maven.nanite.dev/releases/com/sunekaer/mods/ToolKit-neoforge"
+    }
+  ],
+  "providers": [
+    {
+      "type": "identity",
+      "name": "Modrinth",
+      "id": "fWj0tJp5",
+      "slug": "tool-kit",
+      "variants": ["forge", "fabric", "neoforge"]
+    },
+    {
+      "type": "identity",
+      "name": "CurseForge",
+      "id": "324888",
+      "slug": "tool-kit",
+      "variants": ["forge", "fabric", "neoforge"]
+    },
+    {
+      "type": "url",
+      "name": "GitHub",
+      "url": "https://github.com/nanite/ToolKit",
+      "variants": ["forge", "fabric", "neoforge", "common"]
+    }
+  ],
+  "authors": [
+    {
+      "name": "Sunekaer",
+      "role": "Owner"
+    },
+    {
+      "name": "ErrorMikey",
+      "role": "Contributor"
+    }
+  ] 
 }
