@@ -1,3 +1,9 @@
+## 84.0.2
+
+### Fixed
+
+- Weather commands now only effect the overworld (to mimic vanilla behavior
+
 ## 84.0.1
 
 ### Fixed
