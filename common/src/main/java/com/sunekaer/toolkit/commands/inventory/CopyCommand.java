@@ -58,7 +58,7 @@ public class CopyCommand {
             String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
             String withNBT = "";
-            CompoundTag nbt = stack.save(new CompoundTag());
+            CompoundTag nbt = (CompoundTag) stack.save(context.getSource().registryAccess());
             if (nbt.contains("tag")) {
                 withNBT += nbt.get("tag");
             }

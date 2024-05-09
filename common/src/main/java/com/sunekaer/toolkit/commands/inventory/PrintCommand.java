@@ -14,11 +14,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PrintCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
@@ -44,8 +46,10 @@ public class PrintCommand {
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
 
             String withNBT = "";
-            if (stack.hasTag()) {
-                withNBT = stack.getOrCreateTag().toString();
+            List<TagKey<Item>> stackTags = stack.getTags().toList();
+            if (!stackTags.isEmpty()) {
+                // TODO - Validate this
+                withNBT = stackTags.toString();
             }
 
             String combinedItemNBT = itemName + withNBT;

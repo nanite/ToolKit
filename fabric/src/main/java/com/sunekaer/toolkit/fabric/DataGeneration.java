@@ -4,7 +4,9 @@ import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
+import net.minecraft.core.HolderLookup;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 public class DataGeneration implements DataGeneratorEntrypoint {
@@ -15,12 +17,13 @@ public class DataGeneration implements DataGeneratorEntrypoint {
     }
 
     private static class LanguageGenerator extends FabricLanguageProvider {
-        public LanguageGenerator(FabricDataOutput gen) {
-            super(gen, "en_us");
+
+        protected LanguageGenerator(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
+            super(dataOutput, "en_us", registryLookup);
         }
 
         @Override
-        public void generateTranslations(TranslationBuilder translationBuilder) {
+        public void generateTranslations(HolderLookup.Provider registryLookup, TranslationBuilder translationBuilder) {
             translationBuilder.add("commands.toolkit.wip", "--This command doesn't function yet--");
             translationBuilder.add("commands.toolkit.hand.handempty", "--HAND IS EMPTY--");
             translationBuilder.add("commands.toolkit.clipboard.copied", "§e--Copied to Clipboard--");
@@ -68,5 +71,6 @@ public class DataGeneration implements DataGeneratorEntrypoint {
 
             return quads[number/1000] + triples[(number % 1000) / 100] + doubles[(number % 100) / 10] + singles[number % 10];
         }
+
     }
 }
