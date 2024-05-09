@@ -1,49 +1,37 @@
 package com.sunekaer.toolkit.utils;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+
+import java.util.Objects;
 
 public class EnchantmentHacks {
     public static void enchantItem(ItemStack stack, Enchantment enchantment, short level) {
-        // CompoundTag tag = stack.getOrCreateTag();
-        // if (!tag.contains(TAG_ENCH, 9)) {
-        //     tag.put(TAG_ENCH, new ListTag());
-        // }
-        // ListTag listtag = tag.getList(TAG_ENCH, 10);
-        // listtag.add(EnchantmentHelper.storeEnchantment(EnchantmentHelper.getEnchantmentId(enchantment), level));
+        var enchantments = stack.get(DataComponents.ENCHANTMENTS);
+        var mutableEnchants = new ItemEnchantments.Mutable(Objects.requireNonNullElse(enchantments, ItemEnchantments.EMPTY));
+
+        mutableEnchants.set(enchantment, level);
+        stack.set(DataComponents.ENCHANTMENTS, mutableEnchants.toImmutable());
     }
 
     public static boolean removeEnchantment(ItemStack stack, Enchantment enchantment) {
-        //CompoundTag tag = stack.getOrCreateTag();
-        //if (!tag.contains(TAG_ENCH)) {
-        //    return false;
-        //}
-//
-        //ListTag listTag = tag.getList(TAG_ENCH, 10);
-//
-        //ResourceLocation enchantmentId = EnchantmentHelper.getEnchantmentId(enchantment);
-        //if (enchantmentId == null) {
-        //    return false;
-        //}
-//
-        //// Find the enchant
-        //CompoundTag foundCompound = null;
-        //for (int i = 0; i < listTag.size(); i++) {
-        //    CompoundTag innerTag = listTag.getCompound(i);
-        //    if (innerTag.contains("id") && innerTag.getString("id").equals(enchantmentId.toString())) {
-        //        foundCompound = innerTag;
-        //    }
-        //}
-//
-        //if (foundCompound == null) {
-        //    return false;
-        //}
-//
-        //return listTag.remove(foundCompound);
+        var enchantments = stack.get(DataComponents.ENCHANTMENTS);
+        if (enchantments == null) {
+            return false;
+        }
+
+        var mutableEnchants = new ItemEnchantments.Mutable(enchantments);
+        for (Holder<Enchantment> enchant : mutableEnchants.keySet()) {
+            if (enchant.value().equals(enchantment)) {
+                mutableEnchants.set(enchantment, 0);
+                stack.set(DataComponents.ENCHANTMENTS, mutableEnchants.toImmutable());
+                return true;
+            }
+        }
+
         return false;
     }
 }
