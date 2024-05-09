@@ -23,14 +23,12 @@ public class TKCommand {
         dispatcher.register(Commands.literal("toggledownfall")
                 .requires(cs -> cs.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(c -> {
-                    ServerLevel level = c.getSource()
-                            .getPlayerOrException()
-                            .serverLevel();
+                    ServerLevel overworld = c.getSource().getServer().overworld();
 
-                    if (level.isRaining() || level.isThundering()) {
-                        level.setWeatherParameters(6000, 0, false, false);
+                    if (overworld.isRaining() || overworld.isThundering()) {
+                        overworld.setWeatherParameters(6000, 0, false, false);
                     } else {
-                        level.setWeatherParameters(0, 6000, true, false);
+                        overworld.setWeatherParameters(0, 6000, true, false);
                     }
 
                     return 1;
