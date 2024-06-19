@@ -9,6 +9,8 @@ import com.sunekaer.toolkit.network.SetCopy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -46,10 +48,11 @@ public class PrintCommand {
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
 
             String withNBT = "";
-            List<TagKey<Item>> stackTags = stack.getTags().toList();
-            if (!stackTags.isEmpty()) {
-                // TODO - Validate this
-                withNBT = stackTags.toString();
+            var saveData = stack.save(context.getSource().registryAccess());
+            if (saveData instanceof CompoundTag && ((CompoundTag) saveData).contains("components")) {
+                Tag components = ((CompoundTag) saveData).get("components");
+                assert components != null;
+                withNBT = components.toString();
             }
 
             String combinedItemNBT = itemName + withNBT;

@@ -59,8 +59,8 @@ public class CopyCommand {
 
             String withNBT = "";
             CompoundTag nbt = (CompoundTag) stack.save(context.getSource().registryAccess());
-            if (nbt.contains("tag")) {
-                withNBT += nbt.get("tag");
+            if (nbt.contains("components")) {
+                withNBT += nbt.get("components");
             }
 
             clipboard.append(itemName).append(withNBT).append(CommandUtils.NEW_LINE);
