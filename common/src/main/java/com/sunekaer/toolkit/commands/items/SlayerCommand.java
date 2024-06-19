@@ -3,12 +3,15 @@ package com.sunekaer.toolkit.commands.items;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
@@ -35,7 +38,8 @@ public class SlayerCommand {
 
         var enchants = itemstack.get(DataComponents.ENCHANTMENTS);
         var mutableEnchants = new ItemEnchantments.Mutable(enchants);
-        enchantments.forEach(e -> mutableEnchants.set(e, Short.MAX_VALUE));
+        Registry<Enchantment> enchantmentRegistry = player.server.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+        enchantments.forEach(e -> mutableEnchants.set(enchantmentRegistry.getHolderOrThrow(e), Short.MAX_VALUE));
         itemstack.set(DataComponents.ENCHANTMENTS, mutableEnchants.toImmutable());
 
         boolean added = player.getInventory().add(itemstack.copy());

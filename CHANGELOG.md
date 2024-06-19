@@ -1,3 +1,10 @@
+## 87.0.0
+
+### Changed
+
+- Updated to 1.21
+
+
 ## 85.0.0
 
 ### Changed

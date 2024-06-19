@@ -10,6 +10,8 @@ import com.sunekaer.toolkit.utils.ChunkRangeIterator;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -49,8 +52,10 @@ public class MineAreaCommand {
     private static int mine(CommandSourceStack source, int size, String filter) throws CommandSyntaxException {
         try {
             ItemStack breaker = new ItemStack(Items.NETHERITE_PICKAXE);
+
+            Registry<Enchantment> enchantmentRegistry = source.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
 //            breaker.enchant(Enchantments.BLOCK_FORTUNE, 3);
-            breaker.enchant(Enchantments.SILK_TOUCH, 1);
+            breaker.enchant(enchantmentRegistry.getHolderOrThrow(Enchantments.SILK_TOUCH), 1);
 
             MinecraftServer server = source.getServer();
             ServerLevel level = source.getLevel();

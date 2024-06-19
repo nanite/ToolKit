@@ -56,7 +56,7 @@ public class ClearCommand {
         var removalCheck = RemovalPredicate.getFromName(filter).orElse(RemovalPredicate.JUST_ORES);
         Predicate<BlockState> customCheck = null;
         if (filter.startsWith("#")) {
-            customCheck = state -> state.is(TagKey.create(Registries.BLOCK, new ResourceLocation(filter.replace("#", ""))));
+            customCheck = state -> state.is(TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(filter.replace("#", ""))));
         } else if(filter.contains(":")) {
             customCheck = state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equalsIgnoreCase(filter);
         }
