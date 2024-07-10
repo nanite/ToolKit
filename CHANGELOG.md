@@ -1,3 +1,21 @@
+## 87.0.1
+
+### Changed
+
+- Added more copy types for the `/tk copy` command. You can now use the following types. Please note that `plain` is the default if no type is provided. Plain is the old default.
+  - `KUBEJS`
+  - `KUBEJS_NATIVE`
+  - `JSON`
+  - `SNBT`
+  - `NBT`
+  - `CRAFTTWEAKER`
+  - `PLAIN`
+  - `CSV`
+
+### Fixed
+
+- The mod works again on NeoForge
+
 ## 87.0.0
 
 ### Changed

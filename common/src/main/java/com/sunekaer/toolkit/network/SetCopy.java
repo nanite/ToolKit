@@ -1,31 +1,32 @@
 package com.sunekaer.toolkit.network;
 
 
+import com.sunekaer.toolkit.Toolkit;
 import dev.architectury.networking.NetworkManager;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
+public record SetCopy(String toCopy) implements CustomPacketPayload {
+    public static final Type<SetCopy> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(Toolkit.MOD_ID, "set_copy"));
 
-public class SetCopy {
-    public final String toCopy;
+    public static final StreamCodec<ByteBuf, SetCopy> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,
+            SetCopy::toCopy,
+            SetCopy::new
+    );
 
-    public SetCopy(FriendlyByteBuf buf) {
-        // Decode data into a message
-        this.toCopy = buf.readUtf();
-    }
-
-    public SetCopy(String toCopy) {
-        this.toCopy = toCopy;
-    }
-
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeUtf(toCopy);
-    }
-
-    public void apply(Supplier<NetworkManager.PacketContext> context) {
-        context.get().queue(() ->
-                Minecraft.getInstance().keyboardHandler.setClipboard(toCopy)
+    public static void handle(SetCopy message, NetworkManager.PacketContext context) {
+        context.queue(() ->
+                Minecraft.getInstance().keyboardHandler.setClipboard(message.toCopy)
         );
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

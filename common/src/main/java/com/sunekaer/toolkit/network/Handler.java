@@ -1,13 +1,16 @@
 package com.sunekaer.toolkit.network;
 
-import com.sunekaer.toolkit.Toolkit;
-import dev.architectury.networking.NetworkChannel;
-import net.minecraft.resources.ResourceLocation;
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 
 public class Handler {
-    public static final NetworkChannel CHANNEL = NetworkChannel.create(ResourceLocation.fromNamespaceAndPath(Toolkit.MOD_ID, "networking_channel"));
 
     public static void init() {
-        CHANNEL.register(SetCopy.class, SetCopy::encode, SetCopy::new, SetCopy::apply);
+        if (Platform.getEnvironment() == Env.CLIENT) {
+            NetworkManager.registerReceiver(NetworkManager.s2c(), SetCopy.TYPE, SetCopy.CODEC, SetCopy::handle);
+        } else {
+            NetworkManager.registerS2CPayloadType(SetCopy.TYPE, SetCopy.CODEC);
+        }
     }
 }
