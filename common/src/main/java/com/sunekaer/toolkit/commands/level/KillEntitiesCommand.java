@@ -98,7 +98,7 @@ public class KillEntitiesCommand {
 
         if (type == KillType.me || type == KillType.players) {
             for (Player player : level.getPlayers(e -> type.checker.test(e, e))) {
-                player.kill();
+                player.kill(source.getLevel());
                 entitiesKilled++;
             }
         } else {

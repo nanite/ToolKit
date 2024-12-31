@@ -1,7 +1,9 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
-    id "me.modmuss50.mod-publish-plugin" version "0.4.5"
+    id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+    id "me.modmuss50.mod-publish-plugin" version "0.7.1"
 }
 
 architectury {
@@ -88,12 +90,14 @@ publishMods {
         accessToken = providers.environmentVariable("CURSE_TOKEN")
         projectId = "${curseforge_id}"
         minecraftVersions.add("${minecraft_version}")
+        minecraftVersions.add("1.21.2")
     }
 
     def modrinthOptions = modrinthOptions {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "${modrinth_id}"
         minecraftVersions.add("${minecraft_version}")
+        minecraftVersions.add("1.21.2")
     }
 
     curseforge("curseforgeFabric") {
@@ -145,4 +149,47 @@ publishMods {
             }
         }
     }
+}
+
+tasks.register("updateModVersion") {
+    doLast {
+        def gradleFile = file("gradle.properties")
+        def text = gradleFile.text
+
+        def minecraftVersion = getModPrefixVersion()
+        def modVersion = text.find("mod_version=(.*)")
+
+        if (modVersion == null) {
+            throw new IllegalStateException("Could not find mod_version in gradle.properties")
+        }
+
+        modVersion = modVersion.split("=")[1]
+        def remainingVersion = modVersion.tokenize(".").drop(1).join(".")
+        def newVersion = "${minecraftVersion}.${remainingVersion}"
+
+        text = text.replace("mod_version=${modVersion}", "mod_version=${newVersion}")
+        gradleFile.text = text
+
+        println "Updated mod version to ${newVersion} from ${modVersion}"
+    }
+}
+
+def getModPrefixVersion() {
+    def url = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
+    def json = new JsonSlurper().parseText(url.toURL().text)
+
+    def versions = json.versions
+    versions = versions.reverse() // We want the oldest version first
+    versions = versions.findAll { it.type == "release" } // We only want releases
+
+    def incrementalVersion = 0
+    for (version in versions) {
+        if (version.id == minecraft_version) {
+            break
+        }
+
+        incrementalVersion++
+    }
+
+    return incrementalVersion
 }

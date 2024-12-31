@@ -53,9 +53,9 @@ public class MineAreaCommand {
         try {
             ItemStack breaker = new ItemStack(Items.NETHERITE_PICKAXE);
 
-            Registry<Enchantment> enchantmentRegistry = source.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+            Registry<Enchantment> enchantmentRegistry = source.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
 //            breaker.enchant(Enchantments.BLOCK_FORTUNE, 3);
-            breaker.enchant(enchantmentRegistry.getHolderOrThrow(Enchantments.SILK_TOUCH), 1);
+            breaker.enchant(enchantmentRegistry.get(Enchantments.SILK_TOUCH).orElseThrow(), 1);
 
             MinecraftServer server = source.getServer();
             ServerLevel level = source.getLevel();

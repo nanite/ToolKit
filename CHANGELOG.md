@@ -1,3 +1,12 @@
+## 89.0.0
+
+### Changed
+
+- Updated to 1.21.2/1.21.3
+- The `/tk clear` command now supports custom input filters as well as optionally being able to remove bedrock from the world
+  - This technically replaces existing functionality where a tag or blockstate would be read from the input but due to poor auto-complete, this is basically an unknown feature so we've changed it to one that's much more clear
+  - The new syntax is `/tk clear <size> [filter] [removeBedrock]`
+
 ## 87.0.1
 
 ### Changed
@@ -21,7 +30,6 @@
 ### Changed
 
 - Updated to 1.21
-
 
 ## 85.0.0
 

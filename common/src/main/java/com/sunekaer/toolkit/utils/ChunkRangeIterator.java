@@ -42,12 +42,12 @@ public class ChunkRangeIterator implements Iterator<BlockPos> {
         this.currentX = minX;
         this.currentZ = minZ;
         this.reverseY = reverseY;
-        this.currentY = reverseY ? level.getMaxBuildHeight() : level.getMinBuildHeight();
+        this.currentY = reverseY ? level.getMaxY() : level.getMinY();
     }
 
     @Override
     public boolean hasNext() {
-        return (this.reverseY ? currentY > level.getMinBuildHeight() : currentY < level.getMaxBuildHeight())
+        return (this.reverseY ? currentY >= level.getMinY() : currentY <= level.getMaxY())
                 && currentZ < maxZ
                 && currentX < maxX;
     }
@@ -70,6 +70,6 @@ public class ChunkRangeIterator implements Iterator<BlockPos> {
             }
         }
 
-        return pos;
+         return pos;
     }
 }

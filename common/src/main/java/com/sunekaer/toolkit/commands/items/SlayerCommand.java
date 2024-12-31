@@ -38,8 +38,8 @@ public class SlayerCommand {
 
         var enchants = itemstack.get(DataComponents.ENCHANTMENTS);
         var mutableEnchants = new ItemEnchantments.Mutable(enchants);
-        Registry<Enchantment> enchantmentRegistry = player.server.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        enchantments.forEach(e -> mutableEnchants.set(enchantmentRegistry.getHolderOrThrow(e), Short.MAX_VALUE));
+        Registry<Enchantment> enchantmentRegistry = player.server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        enchantments.forEach(e -> mutableEnchants.set(enchantmentRegistry.get(e).orElseThrow(), Short.MAX_VALUE));
         itemstack.set(DataComponents.ENCHANTMENTS, mutableEnchants.toImmutable());
 
         boolean added = player.getInventory().add(itemstack.copy());

@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -45,7 +46,7 @@ public class TeleportDimensionSpawnCommand {
 
             if (entity instanceof ServerPlayer serverPlayer) {
                 playerXp = serverPlayer.experienceLevel;
-                serverPlayer.teleportTo(level, pos.getX(), pos.getY(), pos.getZ(), entity.getYRot(), entity.getXRot());
+                serverPlayer.teleportTo(level, pos.getX(), pos.getY(), pos.getZ(), Relative.ALL, entity.getYRot(), entity.getXRot(), true);
                 serverPlayer.setExperienceLevels(playerXp);
             } else {
                 entity.teleportTo(pos.getX(), pos.getY(), pos.getZ());
