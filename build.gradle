@@ -97,16 +97,10 @@ publishMods {
         requires {
             slug = "fabric-api"
         }
-        requires {
-            slug = "architectury-api"
-        }
     }
 
     curseforge("curseforgeNeoForge") {
         from(curseForgeOptions, neoForge)
-        requires {
-            slug = "architectury-api"
-        }
     }
 
     if (providers.environmentVariable("MODRINTH_TOKEN").getOrNull() != null) {
@@ -115,16 +109,10 @@ publishMods {
             requires {
                 slug = "fabric-api"
             }
-            requires {
-                slug = "architectury-api"
-            }
         }
 
         modrinth("modrinthNeoforge") {
             from(modrinthOptions, neoForge)
-            requires {
-                slug = "architectury-api"
-            }
         }
     }
 }
