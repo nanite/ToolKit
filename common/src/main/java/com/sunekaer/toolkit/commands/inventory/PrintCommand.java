@@ -22,6 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sunekaer.toolkit.commands.inventory.CopyCommand.getNbtFromItemStack;
+
 public class PrintCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("print")
@@ -46,14 +48,7 @@ public class PrintCommand {
             String itemName = location.toString();
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
 
-            String withNBT = "";
-            var saveData = stack.save(context.getSource().registryAccess());
-            if (saveData instanceof CompoundTag && ((CompoundTag) saveData).contains("components")) {
-                Tag components = ((CompoundTag) saveData).get("components");
-                assert components != null;
-                withNBT = components.toString();
-            }
-
+            String withNBT = getNbtFromItemStack(stack, source.registryAccess());
             String combinedItemNBT = itemName + withNBT;
 
             source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(Style.EMPTY

@@ -73,7 +73,7 @@ public class KillEntitiesCommand {
                 .then(Commands.argument("type", KillTypeArgument.killType())
                         .executes(context -> kill(KillTypeArgument.getKillType(context, "type"), context.getSource())))
                 .then(Commands.literal("by").then(
-                        Commands.argument("entity", ResourceArgument.resource(arg, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.SUMMONABLE_ENTITIES).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
+                        Commands.argument("entity", ResourceArgument.resource(arg, Registries.ENTITY_TYPE)).suggests(SuggestionProviders.cast(SuggestionProviders.SUMMONABLE_ENTITIES)).executes(context -> killByEntity(context, ResourceArgument.getSummonableEntityType(context, "entity")))));
     }
 
     private static int killByEntity(CommandContext<CommandSourceStack> context, Holder.Reference<EntityType<?>> reference) throws CommandSyntaxException {
@@ -82,7 +82,7 @@ public class KillEntitiesCommand {
 
         EntityType<?> entityType = reference.value();
 
-        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType), true);
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType.toShortString()), true);
         var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
         yeetedEntitiesMessage(source, entitiesKilled, entityType.toShortString());
 
