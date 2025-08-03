@@ -12,8 +12,7 @@ jobs:
     uses: nanite/workflows/.github/workflows/release.yml@v1.3
     with:
       java-version: 21
-      changelog-file: "./CHANGELOG.md"
-      release-to-github: false
+      gradle-tasks: build publish publishMods
     secrets:
       nanite-token: ${{ secrets.NANITE_DEPLOY }}
       curse-token: ${{ secrets.CURSE_DEPLOY }}
