@@ -24,10 +24,3 @@ required = true
 versionRange = "[1.21,)"
 ordering = "NONE"
 side = "BOTH"
-
-[[dependencies.toolkit]]
-modId = "architectury"
-required = true
-versionRange = "[13.0.1,)"
-ordering = "AFTER"
-side = "BOTH"

@@ -53,7 +53,7 @@ public class TKCommand {
                         .then(TeleportDimensionSpawnCommand.register())
                         .then(DrainFluidCommand.register())
                         .then(FeedCommand.register())
-                        .then(MineAreaCommand.register())
+//                        .then(MineAreaCommand.register())
 
                 //TODO kill all by entity id
         );

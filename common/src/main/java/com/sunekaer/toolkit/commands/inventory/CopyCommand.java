@@ -7,10 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.sunekaer.toolkit.network.Handler;
+import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.network.SetCopy;
 import com.sunekaer.toolkit.utils.CommandUtils;
-import dev.architectury.networking.NetworkManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.HolderLookup;
@@ -80,7 +79,7 @@ public class CopyCommand {
         var outputString = computedOutputType.function.apply(nonEmptyItems, source.registryAccess());
 
         source.sendSuccess(() -> Component.translatable("commands.toolkit.clipboard.copied"), true);
-        NetworkManager.sendToPlayer(player, new SetCopy(outputString));
+        Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(outputString));
 
         return 1;
     }

@@ -4,9 +4,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.sunekaer.toolkit.network.Handler;
+import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.network.SetCopy;
-import dev.architectury.networking.NetworkManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -16,14 +15,12 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PrintCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
@@ -45,7 +42,8 @@ public class PrintCommand {
         var itemCollection = type.itemCollector.apply(player);
 
         for (ItemStack stack : itemCollection) {
-            String itemName = Objects.requireNonNull(stack.getItem().arch$registryName()).toString();
+            ResourceLocation location = stack.getItem().builtInRegistryHolder().key().location();
+            String itemName = location.toString();
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
 
             String withNBT = "";
@@ -59,12 +57,12 @@ public class PrintCommand {
             String combinedItemNBT = itemName + withNBT;
 
             source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(Style.EMPTY
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, combinedItemNBT))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy tag")))
+                    .withClickEvent(new ClickEvent.CopyToClipboard(combinedItemNBT))
+                    .withHoverEvent(new HoverEvent.ShowText(Component.literal("Copy tag")))
                     .withColor(ChatFormatting.YELLOW)), false);
 
             if (copyOnReply) {
-                NetworkManager.sendToPlayer(player, new SetCopy(combinedItemNBT));
+                Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(combinedItemNBT));
             }
 
             if (tags.isEmpty()) {
@@ -74,8 +72,8 @@ public class PrintCommand {
             for (TagKey<?> tag : tags) {
                 var tagString = String.format("#%s", tag.location());
                 source.sendSuccess(() -> Component.literal("- ").append(Component.literal(tagString).withStyle(Style.EMPTY.withColor(ChatFormatting.RED)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, tagString))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy tag")))
+                        .withClickEvent(new ClickEvent.CopyToClipboard(tagString))
+                        .withHoverEvent(new HoverEvent.ShowText(Component.literal("Copy tag")))
                 )), false);
             }
         }

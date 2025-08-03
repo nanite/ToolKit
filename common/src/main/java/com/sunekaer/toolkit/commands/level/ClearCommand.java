@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.sunekaer.toolkit.ToolkitPlatform;
+import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.jobs.ServerTickJobRunner;
 import com.sunekaer.toolkit.utils.ChunkRangeIterator;
 import net.minecraft.commands.CommandBuildContext;
@@ -31,7 +31,11 @@ import java.util.function.Predicate;
 
 public class ClearCommand {
     private static final AtomicBoolean COMPLETED = new AtomicBoolean(true);
-    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
+    public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+        Thread thread = new Thread(r, "Toolkit-ClearCommand-Executor");
+        thread.setDaemon(true); // Ensure it's killed with the server stopping
+        return thread;
+    });
 
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext commandBuildContext) {
         return (Commands.literal("clear")
@@ -158,13 +162,13 @@ public class ClearCommand {
         }
 
         for (BlockPos pos : updatedBlocks) {
-            level.blockUpdated(pos, airState.getBlock());
+            level.updateNeighborsAt(pos, airState.getBlock());
         }
     }
 
     private enum RemovalPredicate {
-        JUST_ORES(state -> !state.getState().is(ToolkitPlatform.getOresTag())),
-        ORES_AND_MODDED(state -> !state.getState().is(ToolkitPlatform.getOresTag()) || !BuiltInRegistries.BLOCK.getKey(state.getState().getBlock()).getNamespace().equals("minecraft"));
+        JUST_ORES(state -> !state.getState().is(Toolkit.PLATFORM.oresTag())),
+        ORES_AND_MODDED(state -> !state.getState().is(Toolkit.PLATFORM.oresTag()) || !BuiltInRegistries.BLOCK.getKey(state.getState().getBlock()).getNamespace().equals("minecraft"));
 
         public static final List<RemovalPredicate> VALUES = Arrays.asList(values());
         public static final String[] NAMES = VALUES.stream().map(e -> e.toString().toLowerCase()).toArray(String[]::new);

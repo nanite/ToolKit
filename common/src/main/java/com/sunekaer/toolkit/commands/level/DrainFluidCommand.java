@@ -115,7 +115,7 @@ public class DrainFluidCommand {
         ServerTickJobRunner.get().add(() -> {
             for (BlockPos blockPos : locationsToRemove) {
                 level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-                level.blockUpdated(blockPos, Blocks.AIR);
+                level.updateNeighborsAt(blockPos, Blocks.AIR);
             }
         });
 

@@ -1,43 +1,63 @@
 package com.sunekaer.toolkit;
 
-import com.sunekaer.toolkit.commands.level.ClearCommand;
+import com.mojang.brigadier.CommandDispatcher;
 import com.sunekaer.toolkit.commands.TKCommand;
-import com.sunekaer.toolkit.event.PlayerEvents;
+import com.sunekaer.toolkit.commands.level.ClearCommand;
 import com.sunekaer.toolkit.jobs.ServerTickJobRunner;
-import com.sunekaer.toolkit.network.Handler;
-import dev.architectury.event.events.common.CommandRegistrationEvent;
-import dev.architectury.event.events.common.LifecycleEvent;
-import dev.architectury.event.events.common.PlayerEvent;
-import dev.architectury.event.events.common.TickEvent;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
 public class Toolkit {
     private static final Logger LOGGER = LoggerFactory.getLogger(Toolkit.class);
     public static final String MOD_ID = "toolkit";
 
+    public static final XPlatShim PLATFORM = ServiceLoader.load(XPlatShim.class).findFirst().orElseThrow();
+
     public static final DefaultedValue<Boolean> SHOW_ON_JOIN_MESSAGE = new DefaultedValue<>(true);
     public static final DefaultedValue<String> JOIN_MESSAGE = new DefaultedValue<>("Hello from ToolKit, this message can be change or disabled in config.");
 
-    public static void init() {
-        PlayerEvent.PLAYER_JOIN.register(PlayerEvents::playerJoined);
-        CommandRegistrationEvent.EVENT.register(TKCommand::register);
-
-        Handler.init();
-        LifecycleEvent.SERVER_STOPPING.register(Toolkit::onServerStopping);
-        LifecycleEvent.SETUP.register(Toolkit::setup);
-        TickEvent.SERVER_POST.register((server) -> ServerTickJobRunner.get().onTick(server));
+    public Toolkit() {
     }
 
-    // Poor mans basic config system :cry:
+    public void onSetup() {
+        setup();
+    }
+
+    public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection commandSelection) {
+        TKCommand.register(dispatcher, commandBuildContext, commandSelection);
+    }
+
+    public void onServerStopping() {
+        ClearCommand.EXECUTOR.shutdownNow();
+    }
+
+    public void onServerPostTick(MinecraftServer server) {
+        ServerTickJobRunner.get().onTick(server);
+    }
+
+    public void onPlayerJoin(ServerPlayer player) {
+        if (player != null && Toolkit.SHOW_ON_JOIN_MESSAGE.get()) {
+            if (!player.level().isClientSide) {
+                player.displayClientMessage(Component.literal(Toolkit.JOIN_MESSAGE.get()), false);
+            }
+        }
+    }
+
+    // Poor persons basic config system :cry:
     private static void setup() {
-        Path configPath = ToolkitPlatform.getConfigDirectory();
+        Path configPath = PLATFORM.configDirectory().get();
         Path ourConfig = configPath.resolve("toolkit.txt");
 
         if (Files.notExists(ourConfig)) {
@@ -78,10 +98,6 @@ public class Toolkit {
                 LOGGER.error("Failed to read {} for toolkit's configuration", ourConfig, e);
             }
         }
-    }
-
-    private static void onServerStopping(MinecraftServer minecraftServer) {
-        ClearCommand.EXECUTOR.shutdownNow();
     }
 
     public static class DefaultedValue<T> implements Supplier<T> {

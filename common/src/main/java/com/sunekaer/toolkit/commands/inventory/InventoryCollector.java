@@ -3,8 +3,10 @@ package com.sunekaer.toolkit.commands.inventory;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.sunekaer.toolkit.ToolkitPlatform;
+import com.sunekaer.toolkit.Toolkit;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -56,9 +58,11 @@ public enum InventoryCollector {
     }),
     ARMOR("armor", (player) -> {
         List<ItemStack> items = new ArrayList<>();
-        for (ItemStack slot : player.getArmorSlots()) {
-            if (!slot.isEmpty()) {
-                items.add(slot);
+
+        for (EquipmentSlot slot : EquipmentSlotGroup.ARMOR) {
+            ItemStack itemBySlot = player.getItemBySlot(slot);
+            if (!itemBySlot.isEmpty()) {
+                items.add(itemBySlot);
             }
         }
         return items;
@@ -72,7 +76,7 @@ public enum InventoryCollector {
         }
 
         var level = player.level();
-        return ToolkitPlatform.getInventoryFromBlockEntity(level, blockHit.getBlockPos(), blockHit.getDirection());
+        return Toolkit.PLATFORM.itemsInBlockEntity(level, blockHit.getBlockPos(), blockHit.getDirection());
     });
 
     String name;

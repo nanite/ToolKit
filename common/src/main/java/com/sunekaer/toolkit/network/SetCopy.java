@@ -1,8 +1,6 @@
 package com.sunekaer.toolkit.network;
 
-
 import com.sunekaer.toolkit.Toolkit;
-import dev.architectury.networking.NetworkManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -19,10 +17,8 @@ public record SetCopy(String toCopy) implements CustomPacketPayload {
             SetCopy::new
     );
 
-    public static void handle(SetCopy message, NetworkManager.PacketContext context) {
-        context.queue(() ->
-                Minecraft.getInstance().keyboardHandler.setClipboard(message.toCopy)
-        );
+    public static void handle(SetCopy message) {
+        Minecraft.getInstance().keyboardHandler.setClipboard(message.toCopy);
     }
 
     @Override

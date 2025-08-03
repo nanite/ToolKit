@@ -4,13 +4,12 @@ import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.sunekaer.toolkit.ToolkitPlatform;
+import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.utils.ChunkRangeIterator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -58,7 +57,7 @@ public class BlockDistributionCommand {
                 continue;
             }
 
-            if (state.is(ToolkitPlatform.getOresTag())) {
+            if (state.is(Toolkit.PLATFORM.oresTag())) {
                 ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
                 blockOccurrences.add(key.toString());
             }
@@ -85,7 +84,7 @@ public class BlockDistributionCommand {
 
             component.append(Component.literal("[")).withStyle(Style.EMPTY.withColor(yellow));
             component.append(Component.literal(COMMA_FORMATTER.format(entry.getCount())).withStyle(Style.EMPTY.withColor(yellow).withHoverEvent(
-                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(FORMATTER.format(entry.getCount() * 100 / sum) + "%"))
+                new HoverEvent.ShowText(Component.literal(FORMATTER.format(entry.getCount() * 100 / sum) + "%"))
             )));
             component.append(Component.literal("]").withStyle(Style.EMPTY.withColor(yellow)));
             component.append(Component.literal(" " + entry.getElement()).withStyle(Style.EMPTY.withColor(white)));
