@@ -35,14 +35,15 @@ public class XPlatShimNeoImpl implements XPlatShim {
     public List<ItemStack> itemsInBlockEntity(Level level, BlockPos pos, @Nullable Direction direction) {
         List<ItemStack> items = new ArrayList<>();
 
-        var obj = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, Direction.UP);
-        if(obj != null) {
-            for (int i = 0; i < obj.getSlots(); i++) {
-                var stack = obj.getStackInSlot(i);
+
+        var resourceHandler = level.getCapability(Capabilities.Item.BLOCK, pos, Direction.UP);
+        if(resourceHandler != null) {
+            for (int i = 0; i < resourceHandler.size(); i++) {
+                var stack = resourceHandler.getResource(i);
                 if (stack.isEmpty()) {
                     continue;
                 }
-                items.add(stack);
+                items.add(stack.toStack());
             }
         }
 
