@@ -10,6 +10,7 @@ import dev.architectury.networking.NetworkManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
@@ -23,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PrintCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
@@ -45,26 +45,16 @@ public class PrintCommand {
         var itemCollection = type.itemCollector.apply(player);
 
         for (ItemStack stack : itemCollection) {
-            String itemName = Objects.requireNonNull(stack.getItem().arch$registryName()).toString();
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
+            var value = new ItemInput(stack.getItemHolder(), stack.getComponentsPatch()).serialize(context.getSource().registryAccess());
 
-            String withNBT = "";
-            var saveData = stack.save(context.getSource().registryAccess());
-            if (saveData instanceof CompoundTag && ((CompoundTag) saveData).contains("components")) {
-                Tag components = ((CompoundTag) saveData).get("components");
-                assert components != null;
-                withNBT = components.toString();
-            }
-
-            String combinedItemNBT = itemName + withNBT;
-
-            source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(Style.EMPTY
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, combinedItemNBT))
+            source.sendSuccess(() -> Component.literal(value).withStyle(Style.EMPTY
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, value))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy tag")))
                     .withColor(ChatFormatting.YELLOW)), false);
 
             if (copyOnReply) {
-                NetworkManager.sendToPlayer(player, new SetCopy(combinedItemNBT));
+                NetworkManager.sendToPlayer(player, new SetCopy(value));
             }
 
             if (tags.isEmpty()) {
