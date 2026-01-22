@@ -1,3 +1,9 @@
+## 87.0.2
+
+### Fixed
+
+- Fixed `/tk copy` and `/tk print` to use the correct NBT format for commands. `minecraft:item{nbt=data}` turns into `minecraft:item[minecraft:nbt=data]`
+
 ## 87.0.1
 
 ### Changed
