@@ -9,6 +9,7 @@ import com.sunekaer.toolkit.network.SetCopy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
@@ -44,20 +45,16 @@ public class PrintCommand {
         var itemCollection = type.itemCollector.apply(player);
 
         for (ItemStack stack : itemCollection) {
-            ResourceLocation location = stack.getItem().builtInRegistryHolder().key().location();
-            String itemName = location.toString();
             List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
+            var value = new ItemInput(stack.getItemHolder(), stack.getComponentsPatch()).serialize(context.getSource().registryAccess());
 
-            String withNBT = getNbtFromItemStack(stack, source.registryAccess());
-            String combinedItemNBT = itemName + withNBT;
-
-            source.sendSuccess(() -> Component.literal(combinedItemNBT).withStyle(Style.EMPTY
-                    .withClickEvent(new ClickEvent.CopyToClipboard(combinedItemNBT))
+            source.sendSuccess(() -> Component.literal(value).withStyle(Style.EMPTY
+                    .withClickEvent(new ClickEvent.CopyToClipboard(value))
                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("Copy tag")))
                     .withColor(ChatFormatting.YELLOW)), false);
 
             if (copyOnReply) {
-                Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(combinedItemNBT));
+                Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(value));
             }
 
             if (tags.isEmpty()) {

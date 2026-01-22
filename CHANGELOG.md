@@ -1,3 +1,9 @@
+## 96.0.0
+
+### Changed
+
+- Ported to 1.21.9/10
+
 ## 94.0.0
 
 ### Changed

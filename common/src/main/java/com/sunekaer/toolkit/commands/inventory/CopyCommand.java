@@ -7,16 +7,20 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.mojang.serialization.DataResult;
 import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.network.SetCopy;
 import com.sunekaer.toolkit.utils.CommandUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.item.ItemInput;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,8 +98,7 @@ public class CopyCommand {
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                DataResult<Tag> encode = ItemStack.CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack);
-                var withNBT = getNbtFromItemStack(stack, lookup);
+                var withNBT = getNbtFromItemStack(stack, lookup, true);
 
                 builder.append(tab).append("{").append(CommandUtils.NEW_LINE);
                 builder.append(tab).append(tab).append("item: ").append('"').append(itemName).append('"').append(",").append(CommandUtils.NEW_LINE);
@@ -124,7 +127,7 @@ public class CopyCommand {
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                var withNBT = getNbtFromItemStack(stack, lookup);
+                var withNBT = getNbtFromItemStack(stack, lookup, true);
 
                 String itemString = String.format("%s%s", stack.getCount() > 1 ? stack.getCount() + "x " : "", itemName);
                 if (withNBT.isEmpty()) {
@@ -145,7 +148,7 @@ public class CopyCommand {
             var output = items.stream().map(stack -> {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                var nbtData = getNbtFromItemStack(stack, lookup);
+                var nbtData = getNbtFromItemStack(stack, lookup, true);
                 if (!nbtData.isEmpty()) {
                     return Map.of(
                             "item", itemName,
@@ -163,7 +166,7 @@ public class CopyCommand {
             ListTag list = new ListTag();
             for (ItemStack stack : items) {
                 var itemNbt = ItemStack.CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack)
-                                .mapOrElse(Function.identity(), (error) -> new CompoundTag());
+                        .mapOrElse(Function.identity(), (error) -> new CompoundTag());
 
                 list.add(itemNbt);
             }
@@ -184,34 +187,13 @@ public class CopyCommand {
             tag.put("items", list);
             return tag.toString();
         }),
-        /**
-         * ZenScript compatible list
-         */
-        CRAFTTWEAKER(5, "crafttweaker", (items, lookup) -> {
-            StringBuilder builder = new StringBuilder();
-            builder.append("[").append(CommandUtils.NEW_LINE);
-
-            for (ItemStack stack : items) {
-                String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
-
-                String withNBT = getNbtFromItemStack(stack, lookup);
-                builder.append("    ").append("<item:").append(itemName).append(">");
-                if (!withNBT.isEmpty()) {
-                    builder.append(".withTag(").append(withNBT).append(")");
-                }
-                builder.append(",").append(CommandUtils.NEW_LINE);
-            }
-
-            builder.append("]").append(CommandUtils.NEW_LINE);
-            return builder.toString();
-        }),
         PLAIN(0,"plain", (items, lookup) -> {
             StringBuilder builder = new StringBuilder();
 
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                String withNBT = getNbtFromItemStack(stack, lookup);
+                String withNBT = getNbtFromItemStack(stack, lookup, true);
 
                 builder.append(itemName).append(withNBT).append(CommandUtils.NEW_LINE);
             }
@@ -222,14 +204,14 @@ public class CopyCommand {
             StringBuilder builder = new StringBuilder();
 
             // Header
-            builder.append("item,nbt").append(CommandUtils.NEW_LINE);
+            builder.append("item,data_components").append(CommandUtils.NEW_LINE);
 
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                String withNBT = getNbtFromItemStack(stack, lookup);
+                String dataComponents = getNbtFromItemStack(stack, lookup, true);
 
-                builder.append(itemName).append(",").append(withNBT).append(CommandUtils.NEW_LINE);
+                builder.append(itemName).append(",").append(dataComponents).append(CommandUtils.NEW_LINE);
             }
 
             return builder.toString();
@@ -246,13 +228,19 @@ public class CopyCommand {
         }
     }
 
-    public static String getNbtFromItemStack(ItemStack stack, HolderLookup.Provider lookup) {
-        DataResult<Tag> encode = ItemStack.CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack);
-        return encode.mapOrElse((tag) -> {
-            if (tag instanceof CompoundTag nbt && nbt.contains("components")) {
-                return Objects.requireNonNull(nbt.get("components")).toString();
+    public static String getNbtFromItemStack(ItemStack stack, HolderLookup.Provider lookup, boolean removeName) {
+        Holder<Item> itemHolder = stack.getItemHolder();
+
+        var value = new ItemInput(itemHolder, stack.getComponentsPatch()).serialize(lookup);
+        if (removeName) {
+            var itemName = itemHolder.unwrapKey().map(ResourceKey::location)
+                    .orElse(ResourceLocation.withDefaultNamespace("air")).toString();
+
+            if (value.startsWith(itemName)) {
+                value = value.substring(itemName.length());
             }
-            return "";
-        }, (error) -> "");
+        }
+
+        return value;
     }
 }
