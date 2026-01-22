@@ -13,6 +13,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -26,7 +27,7 @@ public class EnchantCommand {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext arg) {
         return Commands.literal("enchant")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.literal("add")
                         .then(Commands.argument("enchantment", ResourceArgument.resource(arg, Registries.ENCHANTMENT))
                                 .then(Commands.argument("level", IntegerArgumentType.integer(0, 255))

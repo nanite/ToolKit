@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +25,7 @@ import java.util.Set;
 public class DrainFluidCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("drain")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.argument("area-size", IntegerArgumentType.integer(1, 300))
                         .executes(ctx -> drainFluids(
                                 ctx.getSource(),

@@ -14,7 +14,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public class ToolkitFabric implements ModInitializer {
@@ -32,7 +32,7 @@ public class ToolkitFabric implements ModInitializer {
                 toolkit.registerCommands(commandDispatcher, commandBuildContext, commandSelection)));
 
         ArgumentTypeRegistry.registerArgumentType(
-                ResourceLocation.fromNamespaceAndPath(Toolkit.MOD_ID, "kill_type"),
+                Identifier.fromNamespaceAndPath(Toolkit.MOD_ID, "kill_type"),
                 KillEntitiesCommand.KillTypeArgument.class,
                 SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)
         );

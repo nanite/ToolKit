@@ -14,8 +14,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +32,7 @@ public class BlockDistributionCommand {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("oredist")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.argument("area-size", IntegerArgumentType.integer(1, 1_000))
                         .executes(ctx -> getOreDist(
                                 ctx.getSource(),
@@ -58,7 +59,7 @@ public class BlockDistributionCommand {
             }
 
             if (state.is(Toolkit.PLATFORM.oresTag())) {
-                ResourceLocation key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+                Identifier key = BuiltInRegistries.BLOCK.getKey(state.getBlock());
                 blockOccurrences.add(key.toString());
             }
         }

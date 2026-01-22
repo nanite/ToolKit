@@ -35,7 +35,7 @@
 //public class MineAreaCommand {
 //    public static ArgumentBuilder<CommandSourceStack, ?> register() {
 //        return (Commands.literal("minearea")
-//                .requires(cs -> cs.hasPermission(2))
+//                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
 //                .executes(context -> mine(context.getSource(), 1, ""))
 //                .then(Commands.argument("range", IntegerArgumentType.integer()).executes(ctx -> mine(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "range"), ""))));
 ////                        .then(Commands.argument("filter", StringArgumentType.string()).suggests((commandContext, suggestionsBuilder) -> SharedSuggestionProvider.suggest(ClearCommand.RemovalPredicate.NAMES, suggestionsBuilder)).executes(ctx -> remove(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "range"), StringArgumentType.getString(ctx, "filter"))))));

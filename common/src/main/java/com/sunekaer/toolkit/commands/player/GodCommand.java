@@ -7,10 +7,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 
 public class GodCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
-        return Commands.literal("god").requires(cs -> cs.hasPermission(2))
+        return Commands.literal("god").requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(context -> god(context, context.getSource().getPlayerOrException()))
                 .then(Commands.argument("player", EntityArgument.player()).executes(ctx -> god(ctx, EntityArgument.getPlayer(ctx, "player"))));
     }

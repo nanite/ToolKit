@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.block.Blocks;
@@ -23,7 +24,7 @@ import java.util.List;
 public class TeleportDimensionSpawnCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("tpdim")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .then(Commands.argument("dimension", DimensionArgument.dimension())
                         .executes(ctx -> teleport(ctx.getSource(), ctx.getSource().getServer(), List.of(ctx.getSource().getPlayerOrException()), DimensionArgument.getDimension(ctx, "dimension")))
                         .then(Commands.argument("target", EntityArgument.entities()).executes(ctx -> teleport(ctx.getSource(), ctx.getSource().getServer(), EntityArgument.getEntities(ctx, "target"), DimensionArgument.getDimension(ctx, "dimension")))));    }

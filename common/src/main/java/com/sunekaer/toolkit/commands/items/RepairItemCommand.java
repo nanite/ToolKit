@@ -8,12 +8,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 
 public class RepairItemCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("repair")
-                .requires(cs -> cs.hasPermission(2)).executes(context -> repair(context, context.getSource().getPlayerOrException()))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)).executes(context -> repair(context, context.getSource().getPlayerOrException()))
                 .then(Commands.argument("player", EntityArgument.player()).executes(context -> repair(context, EntityArgument.getPlayer(context, "player"))));
     }
 

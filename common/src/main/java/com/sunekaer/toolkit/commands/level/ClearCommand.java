@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -39,7 +40,7 @@ public class ClearCommand {
 
     public static ArgumentBuilder<CommandSourceStack, ?> register(CommandBuildContext commandBuildContext) {
         return (Commands.literal("clear")
-                .requires(cs -> cs.hasPermission(2))
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                 .executes(context -> remove(context.getSource(), 1, RemovalPredicate.NAMES[0], false))
                 .then(Commands.argument("range", IntegerArgumentType.integer())
                         .executes(ctx -> remove(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "range"), RemovalPredicate.NAMES[0], false))

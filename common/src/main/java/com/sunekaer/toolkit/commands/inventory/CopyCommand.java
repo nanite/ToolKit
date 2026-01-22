@@ -19,7 +19,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -233,8 +233,8 @@ public class CopyCommand {
 
         var value = new ItemInput(itemHolder, stack.getComponentsPatch()).serialize(lookup);
         if (removeName) {
-            var itemName = itemHolder.unwrapKey().map(ResourceKey::location)
-                    .orElse(ResourceLocation.withDefaultNamespace("air")).toString();
+            var itemName = itemHolder.unwrapKey().map(ResourceKey::identifier)
+                    .orElse(Identifier.withDefaultNamespace("air")).toString();
 
             if (value.startsWith(itemName)) {
                 value = value.substring(itemName.length());

@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.effect.MobEffectInstance;
 
 import static net.minecraft.world.effect.MobEffects.NIGHT_VISION;
@@ -11,7 +12,7 @@ import static net.minecraft.world.effect.MobEffects.NIGHT_VISION;
 public class NightVisionCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("nightvision")
-            .requires(cs -> cs.hasPermission(2))
+            .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
             .executes(ctx -> addEffect(ctx.getSource().getPlayerOrException()));
     }
 

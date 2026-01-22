@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +24,7 @@ import java.util.List;
 public class SlayerCommand {
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
         return Commands.literal("slayer")
-                .requires(cs -> cs.hasPermission(2)) //permission
+                .requires(cs -> cs.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) //permission
                 .executes(ctx -> giveItem(ctx.getSource().getPlayerOrException()));
     }
 
