@@ -9,14 +9,10 @@ import com.sunekaer.toolkit.network.SetCopy;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.item.ItemInput;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 
@@ -45,8 +41,8 @@ public class PrintCommand {
         var itemCollection = type.itemCollector.apply(player);
 
         for (ItemStack stack : itemCollection) {
-            List<TagKey<?>> tags = stack.getTags().collect(Collectors.toList());
-            var value = new ItemInput(stack.getItemHolder(), stack.getComponentsPatch()).serialize(context.getSource().registryAccess());
+            List<TagKey<?>> tags = stack.typeHolder().tags().collect(Collectors.toList());
+            var value = getNbtFromItemStack(stack, context.getSource().registryAccess(), false);
 
             source.sendSuccess(() -> Component.literal(value).withStyle(Style.EMPTY
                     .withClickEvent(new ClickEvent.CopyToClipboard(value))

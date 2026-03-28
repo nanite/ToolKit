@@ -8,14 +8,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
 
 public class ToolkitFabric implements ModInitializer {
     Toolkit toolkit;
@@ -37,7 +34,7 @@ public class ToolkitFabric implements ModInitializer {
                 SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)
         );
 
-        PayloadTypeRegistry.playS2C().register(SetCopy.TYPE, SetCopy.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(SetCopy.TYPE, SetCopy.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(SetCopy.TYPE, (payload, context) -> {
             SetCopy.handle(payload);
         });

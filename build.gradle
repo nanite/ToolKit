@@ -1,26 +1,32 @@
 import groovy.json.JsonSlurper
 
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.13-SNAPSHOT" apply false
+    id 'java-library'
+    id 'fabric-loom' version '1.15-SNAPSHOT' apply(false)
+    id 'net.neoforged.moddev' version '2.0.141' apply(false)
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
-architectury {
-    minecraft = rootProject.minecraft_version
-}
+version = mod_version
+group = maven_group
 
-subprojects {
-    apply plugin: "dev.architectury.loom"
-    apply plugin: "maven-publish"
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
 
-    loom {
-        silentMojangMappingsLicense()
+    version = mod_version
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 25
     }
 
-    dependencies {
-        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.officialMojangMappings()
+    idea {
+        module {
+            downloadSources = true
+            downloadJavadoc = true
+        }
     }
 
     publishing {
@@ -38,27 +44,38 @@ subprojects {
     }
 }
 
-allprojects {
-    apply plugin: "java"
-    apply plugin: "architectury-plugin"
-    apply plugin: "maven-publish"
-
-
-    archivesBaseName = rootProject.archives_base_name
-    version = rootProject.mod_version
-    group = rootProject.maven_group
-
-    repositories {
-
+subprojects {
+    base {
+        archivesName = "${archives_base_name}-$project.name"
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
-        options.release = 21
+    if (project.name != "common") {
+        dependencies {
+            api project(":common")
+        }
+
+        jar {
+            from project(":common").sourceSets.main.output
+        }
     }
 
-    java {
-        withSourcesJar()
+    def replaceProperties = [
+            mod_id: mod_id,
+            minecraft_version: minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neoforge_version: neoforge_version,
+            neoforge_version_range: neoforge_version_range,
+            fabric_loader_version: fabric_loader_version,
+            fabric_api_version: fabric_api_version,
+            version: version,
+    ]
+
+    processResources {
+        inputs.properties replaceProperties
+
+        filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
+            expand replaceProperties
+        }
     }
 }
 
@@ -69,13 +86,13 @@ publishMods {
     type = STABLE
 
     def fabricOptions = publishOptions {
-        file = project.provider { project(":fabric").tasks.remapJar }.flatMap { it.archiveFile }
+        file = project.provider { project(":fabric").tasks.jar }.flatMap { it.archiveFile }
         displayName = "[FABRIC][${minecraft_version}] ${project.name} ${mod_version}"
         modLoaders.add("fabric")
     }
 
     def neoForge = publishOptions {
-        file = project.provider { project(":neoforge").tasks.remapJar }.flatMap { it.archiveFile }
+        file = project.provider { project(":neoforge").tasks.jar }.flatMap { it.archiveFile }
         displayName = "[NEOFORGE][${minecraft_version}] ${project.name} ${mod_version}"
         modLoaders.add("neoforge")
     }
@@ -94,9 +111,7 @@ publishMods {
 
     curseforge("curseforgeFabric") {
         from(curseForgeOptions, fabricOptions)
-        requires {
-            slug = "fabric-api"
-        }
+        requires("fabric-api")
     }
 
     curseforge("curseforgeNeoForge") {
@@ -106,9 +121,7 @@ publishMods {
     if (providers.environmentVariable("MODRINTH_TOKEN").getOrNull() != null) {
         modrinth("modrinthFabric") {
             from(modrinthOptions, fabricOptions)
-            requires {
-                slug = "fabric-api"
-            }
+            requires("fabric-api")
         }
 
         modrinth("modrinthNeoforge") {

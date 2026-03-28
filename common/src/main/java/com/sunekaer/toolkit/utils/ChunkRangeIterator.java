@@ -33,11 +33,11 @@ public class ChunkRangeIterator implements Iterator<BlockPos> {
         this.level = level;
         int rangeSize = Math.max(0, size / 2);
 
-        this.minX = (startPos.x - rangeSize) << 4;
-        this.minZ = (startPos.z - rangeSize) << 4;
+        this.minX = (startPos.x() - rangeSize) << 4;
+        this.minZ = (startPos.z() - rangeSize) << 4;
 
-        this.maxX = ((startPos.x + rangeSize) << 4) + (1 << 4);
-        this.maxZ = ((startPos.z + rangeSize) << 4) + (1 << 4);
+        this.maxX = ((startPos.x() + rangeSize) << 4) + (1 << 4);
+        this.maxZ = ((startPos.z() + rangeSize) << 4) + (1 << 4);
 
         this.currentX = minX;
         this.currentZ = minZ;

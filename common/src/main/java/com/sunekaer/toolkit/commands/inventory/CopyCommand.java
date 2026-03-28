@@ -12,13 +12,14 @@ import com.sunekaer.toolkit.network.SetCopy;
 import com.sunekaer.toolkit.utils.CommandUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -28,9 +29,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CopyCommand {
@@ -229,13 +232,27 @@ public class CopyCommand {
     }
 
     public static String getNbtFromItemStack(ItemStack stack, HolderLookup.Provider lookup, boolean removeName) {
-        Holder<Item> itemHolder = stack.getItemHolder();
+        Holder<Item> itemHolder = stack.typeHolder();
+        String itemName = itemHolder.getRegisteredName();
 
-        var value = new ItemInput(itemHolder, stack.getComponentsPatch()).serialize(lookup);
+        var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
+        DataComponentPatch patch = stack.getComponentsPatch();
+        String componentStr = patch.entrySet().stream().flatMap(entry -> {
+            DataComponentType<?> type = entry.getKey();
+            Identifier id = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
+            if (id == null) return Stream.empty();
+            Optional<?> value = entry.getValue();
+            if (value.isPresent()) {
+                TypedDataComponent<?> typed = TypedDataComponent.createUnchecked(type, value.get());
+                return typed.encodeValue(ops).result().stream()
+                        .map(tag -> id + "=" + tag);
+            } else {
+                return Stream.of("!" + id);
+            }
+        }).collect(Collectors.joining(","));
+
+        var value = componentStr.isEmpty() ? itemName : itemName + "[" + componentStr + "]";
         if (removeName) {
-            var itemName = itemHolder.unwrapKey().map(ResourceKey::identifier)
-                    .orElse(Identifier.withDefaultNamespace("air")).toString();
-
             if (value.startsWith(itemName)) {
                 value = value.substring(itemName.length());
             }

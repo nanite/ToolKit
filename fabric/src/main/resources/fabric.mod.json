@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "toolkit",
+  "id": "${mod_id}",
   "version": "${version}",
   "name": "Toolkit",
   "description": "This mod adds bunch of useful commands",
@@ -28,7 +28,7 @@
     "toolkit-common.mixins.json"
   ],
   "depends": {
-    "fabric": "*",
-    "minecraft": ">=${mcversion}"
+    "fabric-api": ">=${fabric_api_version}",
+    "minecraft": ">=${minecraft_version}"
   }
 }

@@ -107,11 +107,11 @@ public class ClearCommand {
 
         COMPLETED.set(false);
 
-        for (int x = chunkPos.x - range; x <= chunkPos.x + range; x++) {
-            for (int z = chunkPos.z- range; z <= chunkPos.z + range; z++) {
+        for (int x = chunkPos.x() - range; x <= chunkPos.x() + range; x++) {
+            for (int z = chunkPos.z() - range; z <= chunkPos.z() + range; z++) {
                 var currentChunkPos = new ChunkPos(x, z);
 
-                final boolean shouldComplete = x == chunkPos.x + range && z == chunkPos.z + range;
+                final boolean shouldComplete = x == chunkPos.x() + range && z == chunkPos.z() + range;
 
                 ServerTickJobRunner.get().add(() -> {
                     removeChunk(level, currentChunkPos, removalCheck, context.removesBedrock);

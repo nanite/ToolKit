@@ -50,7 +50,7 @@ public class Toolkit {
     public void onPlayerJoin(ServerPlayer player) {
         if (player != null && Toolkit.SHOW_ON_JOIN_MESSAGE.get()) {
             if (!player.level().isClientSide()) {
-                player.displayClientMessage(Component.literal(Toolkit.JOIN_MESSAGE.get()), false);
+                player.sendSystemMessage(Component.literal(Toolkit.JOIN_MESSAGE.get()));
             }
         }
     }
