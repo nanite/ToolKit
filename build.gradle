@@ -7,15 +7,13 @@ plugins {
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
-version = mod_version
-group = maven_group
-
 allprojects {
     apply plugin: 'idea'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
     version = mod_version
+    group = maven_group
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
@@ -26,20 +24,6 @@ allprojects {
         module {
             downloadSources = true
             downloadJavadoc = true
-        }
-    }
-
-    publishing {
-        repositories {
-            if (providers.environmentVariable("NANITE_TOKEN").isPresent()) {
-                maven {
-                    url "https://maven.nanite.dev/releases"
-                    credentials {
-                        username = "nanite"
-                        password = providers.environmentVariable("NANITE_TOKEN").get()
-                    }
-                }
-            }
         }
     }
 }
@@ -75,6 +59,28 @@ subprojects {
 
         filesMatching(["META-INF/neoforge.mods.toml", "fabric.mod.json"]) {
             expand replaceProperties
+        }
+    }
+
+    publishing {
+        publications {
+            register("maven${project.name.capitalize()}", MavenPublication) {
+                artifactId = "${rootProject.archives_base_name}-${project.name}"
+                from components.java
+            }
+        }
+
+        repositories {
+            def token = providers.environmentVariable("NANITE_TOKEN");
+            if (token.isPresent()) {
+                maven {
+                    url "https://maven.nanite.dev/releases"
+                    credentials {
+                        username = "nanite"
+                        password = providers.environmentVariable("NANITE_TOKEN").get()
+                    }
+                }
+            }
         }
     }
 }
