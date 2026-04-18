@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.network.SetCopy;
+import dev.nanite.library.platform.Platform;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -50,7 +51,7 @@ public class PrintCommand {
                     .withColor(ChatFormatting.YELLOW)), false);
 
             if (copyOnReply) {
-                Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(value));
+                Platform.INSTANCE.sendPacketToPlayer(player, new SetCopy(value));
             }
 
             if (tags.isEmpty()) {

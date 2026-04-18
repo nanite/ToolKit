@@ -20,7 +20,6 @@ public class ToolkitFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         toolkit = new Toolkit();
-        toolkit.onSetup();
 
         ServerPlayerEvents.JOIN.register((player) -> toolkit.onPlayerJoin(player));
         ServerLifecycleEvents.SERVER_STOPPING.register((server) -> toolkit.onServerStopping());

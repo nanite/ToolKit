@@ -22,11 +22,6 @@ import java.util.function.Supplier;
 
 public class XPlatShimNeoImpl implements XPlatShim {
     @Override
-    public Supplier<Path> configDirectory() {
-        return FMLPaths.CONFIGDIR::get;
-    }
-
-    @Override
     public TagKey<Block> oresTag() {
         return Tags.Blocks.ORES;
     }
@@ -48,10 +43,5 @@ public class XPlatShimNeoImpl implements XPlatShim {
         }
 
         return items;
-    }
-
-    @Override
-    public void sendPacketToPlayer(ServerPlayer player, CustomPacketPayload packet) {
-        PacketDistributor.sendToPlayer(player, packet);
     }
 }

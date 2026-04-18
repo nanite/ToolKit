@@ -26,7 +26,7 @@ public class ToolkitNeo {
     private final Toolkit toolkit;
 
     private static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_REGISTRY = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Toolkit.MOD_ID);
-    private static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<KillEntitiesCommand.KillTypeArgument>> KILL_TYPE_ARG = ARGUMENT_REGISTRY.register("kill_type",            () -> ArgumentTypeInfos.registerByClass(KillEntitiesCommand.KillTypeArgument.class, SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)));
+    private static final DeferredHolder<ArgumentTypeInfo<?, ?>, SingletonArgumentInfo<KillEntitiesCommand.KillTypeArgument>> KILL_TYPE_ARG = ARGUMENT_REGISTRY.register("kill_type", () -> ArgumentTypeInfos.registerByClass(KillEntitiesCommand.KillTypeArgument.class, SingletonArgumentInfo.contextFree(KillEntitiesCommand.KillTypeArgument::killType)));
 
     public ToolkitNeo(IEventBus modEventBus) {
         toolkit = new Toolkit();
@@ -42,7 +42,6 @@ public class ToolkitNeo {
     }
 
     public void onSetup(FMLCommonSetupEvent event) {
-        toolkit.onSetup();
     }
 
     public void registerCommands(RegisterCommandsEvent event) {

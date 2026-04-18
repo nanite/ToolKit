@@ -4,6 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.sunekaer.toolkit.commands.TKCommand;
 import com.sunekaer.toolkit.commands.level.ClearCommand;
 import com.sunekaer.toolkit.jobs.ServerTickJobRunner;
+import dev.nanite.library.core.config.Config;
+import dev.nanite.library.core.config.ConfigManager;
+import dev.nanite.library.core.config.ConfigValueGroup;
+import dev.nanite.library.core.config.values.BooleanConfigValue;
+import dev.nanite.library.core.config.values.StringConfigValue;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -25,14 +30,16 @@ public class Toolkit {
 
     public static final XPlatShim PLATFORM = ServiceLoader.load(XPlatShim.class).findFirst().orElseThrow();
 
-    public static final DefaultedValue<Boolean> SHOW_ON_JOIN_MESSAGE = new DefaultedValue<>(true);
-    public static final DefaultedValue<String> JOIN_MESSAGE = new DefaultedValue<>("Hello from ToolKit, this message can be change or disabled in config.");
+    public static final Config CONFIG = Config.serverConfig(MOD_ID);
+    private static final ConfigValueGroup JOIN_MESSAGE_GROUP = CONFIG.group("join_message")
+            .comments("When enabled, Toolkit will present a message to the user each time they join.");
+
+    public static final BooleanConfigValue SHOW_ON_JOIN_MESSAGE = JOIN_MESSAGE_GROUP.booleanValue("enable", true);
+    public static final StringConfigValue JOIN_MESSAGE = JOIN_MESSAGE_GROUP.stringValue("message", "Hello from ToolKit, this message can be change or disabled in config.")
+            .comments("The message displayed to the user on joining.");
 
     public Toolkit() {
-    }
-
-    public void onSetup() {
-        setup();
+        ConfigManager.register(CONFIG);
     }
 
     public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection commandSelection) {
@@ -52,73 +59,6 @@ public class Toolkit {
             if (!player.level().isClientSide()) {
                 player.sendSystemMessage(Component.literal(Toolkit.JOIN_MESSAGE.get()));
             }
-        }
-    }
-
-    // Poor persons basic config system :cry:
-    private static void setup() {
-        Path configPath = PLATFORM.configDirectory().get();
-        Path ourConfig = configPath.resolve("toolkit.txt");
-
-        if (Files.notExists(ourConfig)) {
-            String output = "# Config for Toolkit\n\n";
-            output += "# Show join message on player join will display a custom message when the player joins a server or single player world\n";
-            output += "show_on_join_message=" + SHOW_ON_JOIN_MESSAGE.get() + "\n\n";
-            output += "# The custom message to show to players\n";
-            output += "join_message=" + JOIN_MESSAGE.get() + "\n";
-
-            try {
-                Files.writeString(ourConfig, output);
-            } catch (IOException e) {
-                LOGGER.error("Failed to create {} for toolkit's configuration", ourConfig, e);
-            }
-        } else {
-            try (var reader = Files.newBufferedReader(ourConfig)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("#")) {
-                        continue;
-                    }
-
-                    if (!line.contains("=")) {
-                        continue;
-                    }
-
-                    line = line.trim();
-                    var remainingString = line.substring(line.indexOf("=") + 1);
-                    if (line.startsWith("show_on_join_message")) {
-                        SHOW_ON_JOIN_MESSAGE.setValue(remainingString.equals("true"));
-                    }
-
-                    if (line.startsWith("join_message")) {
-                        JOIN_MESSAGE.setValue(remainingString);
-                    }
-                }
-            } catch (IOException e) {
-                LOGGER.error("Failed to read {} for toolkit's configuration", ourConfig, e);
-            }
-        }
-    }
-
-    public static class DefaultedValue<T> implements Supplier<T> {
-        private T value;
-        private final T defaultValue;
-
-        public DefaultedValue(T defaultValue) {
-            this.defaultValue = defaultValue;
-        }
-
-        public void setValue(T value) {
-            this.value = value;
-        }
-
-        @Override
-        public T get() {
-            if (value == null) {
-                return this.defaultValue;
-            }
-
-            return this.value;
         }
     }
 }

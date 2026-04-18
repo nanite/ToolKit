@@ -86,7 +86,7 @@ public class CopyCommand {
         var outputString = computedOutputType.function.apply(nonEmptyItems, source.registryAccess());
 
         source.sendSuccess(() -> Component.translatable("commands.toolkit.clipboard.copied"), true);
-        Toolkit.PLATFORM.sendPacketToPlayer(player, new SetCopy(outputString));
+        Platform.INSTANCE.sendPacketToPlayer(player, new SetCopy(outputString));
 
         return 1;
     }

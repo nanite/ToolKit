@@ -15,11 +15,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public interface XPlatShim {
-    Supplier<Path> configDirectory();
-
     TagKey<Block> oresTag();
 
     List<ItemStack> itemsInBlockEntity(Level level, BlockPos pos, @Nullable Direction direction);
-
-    void sendPacketToPlayer(ServerPlayer player, CustomPacketPayload packet);
 }
