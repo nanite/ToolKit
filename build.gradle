@@ -5,6 +5,13 @@ plugins {
     id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT' apply(false)
     id 'net.neoforged.moddev' version '2.0.141' apply(false)
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+    id "dev.nanite.nanite-plugin" version "0.1.0-SNAPSHOT"
+}
+
+nanite {
+    changelog {
+        file = file("./CHANGELOG.md")
+    }
 }
 
 allprojects {
@@ -12,7 +19,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
-    version = mod_version
+    version = naniteUtils.createModVersion()
     group = maven_group
 
     tasks.withType(JavaCompile).configureEach {
@@ -91,100 +98,60 @@ subprojects {
     }
 }
 
+// Make publishMods depend on 'createChangelog' task
+tasks.named("publishMods") {
+    dependsOn tasks.named("createChangelog")
+}
+
 publishMods {
     dryRun = providers.environmentVariable("CURSE_TOKEN").getOrNull() == null
-    changelog = file("./CHANGELOG.md").text
-    version = "${mod_version}"
+    changelog = tasks.named("createChangelog").flatMap { it.outputFile }.get().asFile.text
+    version = project.version
     type = STABLE
 
-    def fabricOptions = publishOptions {
-        file = project.provider { project(":fabric").tasks.jar }.flatMap { it.archiveFile }
-        displayName = "[FABRIC][${minecraft_version}] ${project.name} ${mod_version}"
-        modLoaders.add("fabric")
-    }
-
-    def neoForge = publishOptions {
-        file = project.provider { project(":neoforge").tasks.jar }.flatMap { it.archiveFile }
-        displayName = "[NEOFORGE][${minecraft_version}] ${project.name} ${mod_version}"
-        modLoaders.add("neoforge")
-    }
+    def createOptions = { String modLoader -> publishOptions {
+        file = project.provider { project(":${modLoader}").tasks.jar }.flatMap { it.archiveFile }
+        displayName = "${project.name} ${modLoader.capitalize()} ${project.version}"
+        modLoaders.add(modLoader)
+    }}
 
     def curseForgeOptions = curseforgeOptions {
         accessToken = providers.environmentVariable("CURSE_TOKEN")
         projectId = "${curseforge_id}"
-        minecraftVersions.add("${minecraft_version}")
+        supported_minecraft_versions.split(",").each {
+            minecraftVersions.add(it.trim())
+        }
     }
 
     def modrinthOptions = modrinthOptions {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "${modrinth_id}"
-        minecraftVersions.add("${minecraft_version}")
+        supported_minecraft_versions.split(",").each {
+            minecraftVersions.add(it.trim())
+        }
     }
 
     curseforge("curseforgeFabric") {
-        from(curseForgeOptions, fabricOptions)
+        from(curseForgeOptions, createOptions("fabric"))
         requires("fabric-api")
         requires("nanite-library")
     }
 
     curseforge("curseforgeNeoForge") {
-        from(curseForgeOptions, neoForge)
+        from(curseForgeOptions, createOptions("neoforge"))
         requires("nanite-library")
     }
 
     if (providers.environmentVariable("MODRINTH_TOKEN").getOrNull() != null) {
         modrinth("modrinthFabric") {
-            from(modrinthOptions, fabricOptions)
+            from(modrinthOptions, createOptions("fabric"))
             requires("fabric-api")
             //requires("nanite-library") Soon!
         }
 
         modrinth("modrinthNeoforge") {
-            from(modrinthOptions, neoForge)
+            from(modrinthOptions, createOptions("neoforge"))
             //requires("nanite-library") Soon!
         }
     }
-}
-
-tasks.register("updateModVersion") {
-    doLast {
-        def gradleFile = file("gradle.properties")
-        def text = gradleFile.text
-
-        def minecraftVersion = getModPrefixVersion()
-        def modVersion = text.find("mod_version=(.*)")
-
-        if (modVersion == null) {
-            throw new IllegalStateException("Could not find mod_version in gradle.properties")
-        }
-
-        modVersion = modVersion.split("=")[1]
-        def remainingVersion = modVersion.tokenize(".").drop(1).join(".")
-        def newVersion = "${minecraftVersion}.${remainingVersion}"
-
-        text = text.replace("mod_version=${modVersion}", "mod_version=${newVersion}")
-        gradleFile.text = text
-
-        println "Updated mod version to ${newVersion} from ${modVersion}"
-    }
-}
-
-def getModPrefixVersion() {
-    def url = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
-    def json = new JsonSlurper().parseText(url.toURL().text)
-
-    def versions = json.versions
-    versions = versions.reverse() // We want the oldest version first
-    versions = versions.findAll { it.type == "release" } // We only want releases
-
-    def incrementalVersion = 0
-    for (version in versions) {
-        if (version.id == minecraft_version) {
-            break
-        }
-
-        incrementalVersion++
-    }
-
-    return incrementalVersion
 }

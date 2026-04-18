@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,8 +80,8 @@ public enum InventoryCollector {
         return Toolkit.PLATFORM.itemsInBlockEntity(level, blockHit.getBlockPos(), blockHit.getDirection());
     });
 
-    String name;
-    ItemCollector itemCollector;
+    final String name;
+    final ItemCollector itemCollector;
 
     InventoryCollector(String name, ItemCollector itemCollector) {
         this.name = name;
@@ -91,6 +92,7 @@ public enum InventoryCollector {
         return name;
     }
 
+    @Nullable
     public static InventoryCollector fromString(String name) {
         for (InventoryCollector type : InventoryCollector.values()) {
             if (type.name.equalsIgnoreCase(name)) {

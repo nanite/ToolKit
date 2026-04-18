@@ -1,15 +1,16 @@
 package com.sunekaer.toolkit.commands.inventory;
 
 import com.google.gson.Gson;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import com.sunekaer.toolkit.Toolkit;
 import com.sunekaer.toolkit.network.SetCopy;
 import com.sunekaer.toolkit.utils.CommandUtils;
+import dev.nanite.library.platform.Platform;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
@@ -23,15 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,33 +38,34 @@ public class CopyCommand {
                 .then(
                         Commands.argument("type", StringArgumentType.word())
                                 .suggests(InventoryCollector::suggestions)
-                                .executes(ctx -> copy(ctx, null))
+                                .executes(ctx -> copy(ctx, null, true))
                                 .then(Commands.argument("outputType", StringArgumentType.word())
                                         .suggests(CopyCommand::outputTypeSuggestions)
-                                        .executes(ctx -> copy(ctx, StringArgumentType.getString(ctx, "outputType")))
+                                        .then(Commands.argument("includeItemNBT", BoolArgumentType.bool())
+                                                .executes(ctx -> copy(ctx, StringArgumentType.getString(ctx, "outputType"), BoolArgumentType.getBool(ctx, "includeItemNBT")))
+                                        )
+                                        .executes(ctx -> copy(ctx, StringArgumentType.getString(ctx, "outputType"), true))
                                 )
                 );
 
     }
 
     private static CompletableFuture<Suggestions> outputTypeSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder suggestionsBuilder) {
-        var sortedTypes = Stream.of(OutputType.values()).sorted(Comparator.comparingInt(a -> a.order)).toList();
-        for (OutputType value : sortedTypes) {
-            suggestionsBuilder.suggest(value.name);
+        for (OutputType value : OutputType.VALUES) {
+            suggestionsBuilder.suggest(value.name().toLowerCase());
         }
 
         return suggestionsBuilder.buildFuture();
     }
 
-    private static int copy(CommandContext<CommandSourceStack> context, @Nullable String outputType) throws CommandSyntaxException {
+    private static int copy(CommandContext<CommandSourceStack> context, @Nullable String outputType, boolean includeDataComponent) throws CommandSyntaxException {
         var source = context.getSource();
         var type = InventoryCollector.fromString(StringArgumentType.getString(context, "type"));
 
         var computedOutputType = OutputType.PLAIN;
         if (outputType != null) {
-            try {
-                computedOutputType = OutputType.valueOf(outputType.toUpperCase());
-            } catch (IllegalArgumentException e) {
+            computedOutputType = OutputType.fromString(outputType);
+            if (computedOutputType == null) {
                 source.sendFailure(Component.literal("Invalid output type"));
                 return 0;
             }
@@ -81,9 +78,22 @@ public class CopyCommand {
 
         var player = source.getPlayerOrException();
         var itemCollection = type.itemCollector.apply(player);
-        var nonEmptyItems = itemCollection.stream().filter(stack -> !stack.isEmpty()).toList();
 
-        var outputString = computedOutputType.function.apply(nonEmptyItems, source.registryAccess());
+        // Get distinct items without a count.
+        var seen = new ArrayList<ItemStack>();
+        var nonEmptyItems = itemCollection.stream()
+                .filter(stack -> !stack.isEmpty())
+                .map(e -> e.copyWithCount(1))
+                .filter(stack -> {
+                    if (seen.stream().anyMatch(s -> ItemStack.isSameItemSameComponents(s, stack))) {
+                        return false;
+                    }
+                    seen.add(stack);
+                    return true;
+                })
+                .toList();
+
+        var outputString = computedOutputType.outputter.apply(nonEmptyItems, source.registryAccess(), includeDataComponent);
 
         source.sendSuccess(() -> Component.translatable("commands.toolkit.clipboard.copied"), true);
         Platform.INSTANCE.sendPacketToPlayer(player, new SetCopy(outputString));
@@ -92,24 +102,38 @@ public class CopyCommand {
     }
 
     enum OutputType {
-        KUBEJS(4,"kubejs", (items, lookup) -> {
+        LIST(((items, lookup, includeDataComponents) -> {
+            StringBuilder builder = new StringBuilder("[").append(CommandUtils.NEW_LINE);
+            for (var item : items) {
+                builder.append("  \"").append(item.typeHolder().getRegisteredName());
+                if (includeDataComponents) {
+                    var withNBT = getNbtFromItemStack(item, lookup, true);
+                    builder.append(withNBT.replace("\"", "\\\""));
+                }
+                builder.append("\"").append(CommandUtils.NEW_LINE);
+            }
+            return builder.append("]").toString();
+        })),
+        KUBEJS((items, lookup, includeDataComponent) -> {
             StringBuilder builder = new StringBuilder();
             builder.append("[").append(CommandUtils.NEW_LINE);
 
             final String tab = "  ";
 
             for (ItemStack stack : items) {
-                String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
-
-                var withNBT = getNbtFromItemStack(stack, lookup, true);
+                String itemName = stack.typeHolder().getRegisteredName();
 
                 builder.append(tab).append("{").append(CommandUtils.NEW_LINE);
                 builder.append(tab).append(tab).append("item: ").append('"').append(itemName).append('"').append(",").append(CommandUtils.NEW_LINE);
-                if (!withNBT.isEmpty()) {
-                    builder.append(tab).append(tab).append("nbt: ").append('"').append(withNBT).append('"').append(",").append(CommandUtils.NEW_LINE);
+
+                if (includeDataComponent) {
+                    var withNBT = getNbtFromItemStack(stack, lookup, true);
+                    if (!withNBT.isEmpty()) {
+                        builder.append(tab).append(tab).append("nbt: ").append('"').append(withNBT).append('"').append(",").append(CommandUtils.NEW_LINE);
+                    }
                 }
 
-                if (stack != items.get(items.size() - 1)) {
+                if (stack != items.getLast()) {
                     builder.append(tab).append("},");
                 } else {
                     builder.append(tab).append("}");
@@ -121,24 +145,24 @@ public class CopyCommand {
             builder.append("]");
             return builder.toString();
         }),
-        KUBEJS_NATIVE(5,"kubejs_native", (items, lookup) -> {
+        KUBEJS_NATIVE((items, lookup, includeDataComponent) -> {
             StringBuilder builder = new StringBuilder();
             builder.append("[").append(CommandUtils.NEW_LINE);
 
             final String tab = "  ";
 
             for (ItemStack stack : items) {
-                String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
-
-                var withNBT = getNbtFromItemStack(stack, lookup, true);
+                String itemName = stack.typeHolder().getRegisteredName();
 
                 String itemString = String.format("%s%s", stack.getCount() > 1 ? stack.getCount() + "x " : "", itemName);
+
+                var withNBT = getNbtFromItemStack(stack, lookup, true);
                 if (withNBT.isEmpty()) {
                     builder.append(tab).append("\"").append(itemString).append("\"").append(",");
                 }
 
-                if (!withNBT.isEmpty()) {
-                    builder.append(tab).append("Item.of(\"").append(itemName).append("\").withNbt(").append(withNBT).append("),");
+                if (!withNBT.isEmpty() && includeDataComponent) {
+                    builder.append(tab).append("Item.of(\"").append(itemName).append(withNBT.replace("\"", "\\\"")).append(",");
                 }
 
                 builder.append(CommandUtils.NEW_LINE);
@@ -147,12 +171,12 @@ public class CopyCommand {
             builder.append("]");
             return builder.toString();
         }),
-        JSON(3, "json", (items, lookup) -> {
+        JSON((items, lookup, includeDataComponent) -> {
             var output = items.stream().map(stack -> {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
                 var nbtData = getNbtFromItemStack(stack, lookup, true);
-                if (!nbtData.isEmpty()) {
+                if (!nbtData.isEmpty() && includeDataComponent) {
                     return Map.of(
                             "item", itemName,
                             "nbt", nbtData
@@ -164,11 +188,11 @@ public class CopyCommand {
 
             return new Gson().newBuilder().setPrettyPrinting().create().toJson(output);
         }),
-        SNBT(2, "snbt", (items, lookup) -> {
+        SNBT((items, lookup, includeDataComponent) -> {
             CompoundTag tag = new CompoundTag();
             ListTag list = new ListTag();
             for (ItemStack stack : items) {
-                var itemNbt = ItemStack.CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack)
+                var itemNbt = ItemStack.CODEC.encodeStart(includeDataComponent ? lookup.createSerializationContext(NbtOps.INSTANCE) : NbtOps.INSTANCE, stack)
                         .mapOrElse(Function.identity(), (error) -> new CompoundTag());
 
                 list.add(itemNbt);
@@ -177,11 +201,11 @@ public class CopyCommand {
             tag.put("items", list);
             return (new SnbtPrinterTagVisitor()).visit(tag);
         }),
-        NBT(1, "nbt", (items, lookup) -> {
+        NBT((items, lookup, includeDataComponent) -> {
             CompoundTag tag = new CompoundTag();
             ListTag list = new ListTag();
             for (ItemStack stack : items) {
-                var itemNbt = ItemStack.CODEC.encodeStart(lookup.createSerializationContext(NbtOps.INSTANCE), stack)
+                var itemNbt = ItemStack.CODEC.encodeStart(includeDataComponent ? lookup.createSerializationContext(NbtOps.INSTANCE) : NbtOps.INSTANCE, stack)
                         .mapOrElse(Function.identity(), (error) -> new CompoundTag());
 
                 list.add(itemNbt);
@@ -190,45 +214,70 @@ public class CopyCommand {
             tag.put("items", list);
             return tag.toString();
         }),
-        PLAIN(0,"plain", (items, lookup) -> {
+        PLAIN((items, lookup, includeDataComponent) -> {
             StringBuilder builder = new StringBuilder();
 
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                String withNBT = getNbtFromItemStack(stack, lookup, true);
-
-                builder.append(itemName).append(withNBT).append(CommandUtils.NEW_LINE);
+                builder.append(itemName);
+                if (includeDataComponent) {
+                    String withNBT = getNbtFromItemStack(stack, lookup, true);
+                    builder.append(withNBT);
+                }
+                builder.append(CommandUtils.NEW_LINE);
             }
 
             return builder.toString();
         }),
-        CSV(6, "csv", (items, lookup) -> {
+        CSV((items, lookup, includeDataComponent) -> {
             StringBuilder builder = new StringBuilder();
 
             // Header
-            builder.append("item,data_components").append(CommandUtils.NEW_LINE);
+            builder.append("item");
+            if (includeDataComponent) {
+                builder.append(",data_components");
+            }
+            builder.append(CommandUtils.NEW_LINE);
 
             for (ItemStack stack : items) {
                 String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem())).toString();
 
-                String dataComponents = getNbtFromItemStack(stack, lookup, true);
 
-                builder.append(itemName).append(",").append(dataComponents).append(CommandUtils.NEW_LINE);
+                StringBuilder append = builder.append(itemName);
+                if (includeDataComponent) {
+                    String dataComponents = getNbtFromItemStack(stack, lookup, true);
+                    append.append(",").append(dataComponents);
+                }
+
+                builder.append(CommandUtils.NEW_LINE);
             }
 
             return builder.toString();
         });
 
-        final int order;
-        final String name;
-        final BiFunction<List<ItemStack>, HolderLookup.Provider, String> function;
+        private static final List<OutputType> VALUES = List.of(values());
+        final OutputFunction outputter;
 
-        OutputType(int order, String name, BiFunction<List<ItemStack>, HolderLookup.Provider, String> function) {
-            this.order = order;
-            this.name = name;
-            this.function = function;
+        OutputType(OutputFunction outputter) {
+            this.outputter = outputter;
         }
+
+        @Nullable
+        public static OutputType fromString(String s) {
+            for (OutputType type : VALUES) {
+                if (type.toString().equalsIgnoreCase(s)) {
+                    return type;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    @FunctionalInterface
+    interface OutputFunction {
+        String apply(List<ItemStack> items, HolderLookup.Provider lookup, boolean includeDataComponents);
     }
 
     public static String getNbtFromItemStack(ItemStack stack, HolderLookup.Provider lookup, boolean removeName) {
