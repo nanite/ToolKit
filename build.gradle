@@ -109,7 +109,7 @@ publishMods {
 
     def createOptions = { String modLoader -> publishOptions {
         file = project.provider { project(":${modLoader}").tasks.jar }.flatMap { it.archiveFile }
-        displayName = "${project.name} ${modLoader.capitalize()} ${project.version}"
+        displayName = "Tool Kit ${modLoader.capitalize()} ${project.version}"
         modLoaders.add(modLoader)
     }}
 
