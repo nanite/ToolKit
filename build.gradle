@@ -124,20 +124,24 @@ publishMods {
     curseforge("curseforgeFabric") {
         from(curseForgeOptions, fabricOptions)
         requires("fabric-api")
+        requires("nanite-library")
     }
 
     curseforge("curseforgeNeoForge") {
         from(curseForgeOptions, neoForge)
+        requires("nanite-library")
     }
 
     if (providers.environmentVariable("MODRINTH_TOKEN").getOrNull() != null) {
         modrinth("modrinthFabric") {
             from(modrinthOptions, fabricOptions)
             requires("fabric-api")
+            //requires("nanite-library") Soon!
         }
 
         modrinth("modrinthNeoforge") {
             from(modrinthOptions, neoForge)
+            //requires("nanite-library") Soon!
         }
     }
 }
