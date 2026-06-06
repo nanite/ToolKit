@@ -1,0 +1,6 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "aeronautics:propeller_bearing_contraption", "required": false }
+  ]
+}
