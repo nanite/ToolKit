@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.text.DecimalFormat;
-import java.util.Objects;
 
 public class BlockDistributionCommand {
     private static final DecimalFormat FORMATTER = new DecimalFormat("########0.00");
@@ -78,8 +77,8 @@ public class BlockDistributionCommand {
 
         int i = 0;
         for (Multiset.Entry<String> entry : sortedSet) {
-            int white = (i % 2 == 0) ? Objects.requireNonNull(ChatFormatting.WHITE.getColor()) : 12895171;
-            int yellow =  (i % 2 == 0) ? Objects.requireNonNull(ChatFormatting.YELLOW.getColor()) : 14013728;
+            int white = (i % 2 == 0) ? 0xFFFFFF : 12895171;
+            int yellow =  (i % 2 == 0) ? 0xFFFF55 : 14013728;
 
             var component = Component.literal("");
 

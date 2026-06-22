@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.sunekaer.toolkit.Toolkit;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -13,6 +14,8 @@ import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.StringRepresentable;
@@ -31,6 +34,10 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 public class KillEntitiesCommand {
+    public static final TagKey<EntityType<?>> KILL_PROTECTED = TagKey.create(
+            Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(Toolkit.MOD_ID, "kill_protected"));
+
     enum KillType implements StringRepresentable {
         all((p, entity) -> !(entity instanceof AbstractMinecart) && !entity.getUUID().equals(p.getUUID())),
         animals((p, entity) -> entity instanceof Animal),
@@ -83,8 +90,8 @@ public class KillEntitiesCommand {
 
         EntityType<?> entityType = reference.value();
 
-        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType.toShortString()), true);
-        var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException());
+        source.sendSuccess(() -> Component.translatable("commands.toolkit.kill.start", entityType), true);
+        var entitiesKilled = yeetEntities((player, entity) -> entity.getType().equals(entityType), level, source.getPlayerOrException(), false);
         yeetedEntitiesMessage(source, entitiesKilled, entityType.toShortString());
 
         return 0;
@@ -103,7 +110,7 @@ public class KillEntitiesCommand {
                 entitiesKilled++;
             }
         } else {
-            entitiesKilled += yeetEntities(type.checker, level, source.getPlayerOrException());
+            entitiesKilled += yeetEntities(type.checker, level, source.getPlayerOrException(), true);
         }
 
         yeetedEntitiesMessage(source, entitiesKilled, typeName);
@@ -119,7 +126,7 @@ public class KillEntitiesCommand {
         }
     }
 
-    private static int yeetEntities(BiPredicate<Player, Entity> tester, ServerLevel level, Player player) {
+    private static int yeetEntities(BiPredicate<Player, Entity> tester, ServerLevel level, Player player, boolean respectProtection) {
         int entitiesKilled = 0;
         Iterable<Entity> entities = level.getAllEntities();
 
@@ -129,6 +136,10 @@ public class KillEntitiesCommand {
 
         for (Entity entity : entityList) {
             if (entity == null) {
+                continue;
+            }
+
+            if (respectProtection && entity.getType().builtInRegistryHolder().is(KILL_PROTECTED)) {
                 continue;
             }
 
