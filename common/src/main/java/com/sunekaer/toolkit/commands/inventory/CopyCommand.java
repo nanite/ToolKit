@@ -15,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.TypedDataComponent;
@@ -285,19 +286,15 @@ public class CopyCommand {
         String itemName = itemHolder.getRegisteredName();
 
         var ops = lookup.createSerializationContext(NbtOps.INSTANCE);
-        DataComponentPatch patch = stack.getComponentsPatch();
-        String componentStr = patch.entrySet().stream().flatMap(entry -> {
-            DataComponentType<?> type = entry.getKey();
+        DataComponentMap patch = stack.getComponents();
+        String componentStr = patch.stream().flatMap(entry -> {
+            DataComponentType<?> type = entry.type();
             Identifier id = BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(type);
             if (id == null) return Stream.empty();
-            Optional<?> value = entry.getValue();
-            if (value.isPresent()) {
-                TypedDataComponent<?> typed = TypedDataComponent.createUnchecked(type, value.get());
-                return typed.encodeValue(ops).result().stream()
-                        .map(tag -> id + "=" + tag);
-            } else {
-                return Stream.of("!" + id);
-            }
+            Object value = entry.value();
+            TypedDataComponent<?> typed = TypedDataComponent.createUnchecked(type, value);
+            return typed.encodeValue(ops).result().stream()
+                    .map(tag -> id + "=" + tag);
         }).collect(Collectors.joining(","));
 
         var value = componentStr.isEmpty() ? itemName : itemName + "[" + componentStr + "]";

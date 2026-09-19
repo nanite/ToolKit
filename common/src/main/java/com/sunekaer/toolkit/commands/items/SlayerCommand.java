@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -45,7 +46,7 @@ public class SlayerCommand {
 
         boolean added = player.getInventory().add(itemstack.copy());
         if (!added) {
-            ItemEntity drop = player.drop(itemstack.copy(), false);
+            ItemEntity drop = player.drop(itemstack.copy(), false, Prediction.PREDICTED);
             if (drop != null) {
                 drop.setNoPickUpDelay();
                 drop.setTarget(player.getUUID());
